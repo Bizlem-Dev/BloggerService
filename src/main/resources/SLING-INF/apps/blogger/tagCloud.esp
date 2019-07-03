@@ -1,0 +1,52 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>TagCanvas example</title>
+    <!--[if lt IE 9]><script type="text/javascript" src="excanvas.js"></script><![endif]-->
+   <script src="<%=request.getContextPath()%>/apps/blogger/js/tagCloud.js"></script>
+    <script type="text/javascript">
+      window.onload = function() {
+        try {
+          TagCanvas.Start('myCanvas','tags',{
+            textColour: '#ff0000',
+            outlineColour: '#ff00ff',
+            reverse: true,
+            depth: 0.8,
+            maxSpeed: 0.05
+			
+          });
+        } catch(e) {
+          // something went wrong, hide the canvas container
+          document.getElementById('myCanvasContainer').style.display = 'none';
+        }
+      };
+    </script>
+  </head>
+  <body>
+    <h1>TagCanvas example page</h1>
+   
+    <!--<%=request.getAttribute("tagList")%>-->
+  <%
+    var nodes=request.getAttribute("tagList");
+    
+    for(var i=0;i<nodes.size();i++)
+    {
+    var tagNode=nodes.get(i);
+   
+    %>
+ 
+    <div id="myCanvasContainer">
+      <canvas width="300" height="300" id="myCanvas">
+        <p>Anything in here will be replaced on browsers that support the canvas element</p>
+      </canvas>
+    </div>
+    <div id="tags">
+      <ul>
+        <li><a href="<%=request.getContextPath()%>/servlet/blogger/view.tagPosts?tagKey=<%=nodes.get(i)%>"><%=tagNode%></a> </li>
+       
+      </ul>
+    </div>
+     <% } %>
+  </body>
+</html>

@@ -1,0 +1,167 @@
+<%load("include/header.esp");%>
+<script type="text/javascript">
+     function followBlog(blogId,param,obj){    
+         var id='blogId='+blogId+'&param='+param;
+         $.ajax({
+             type: 'POST',
+             url: '<%=request.getContextPath()%>/servlet/blogger/view.followBlog',
+             data: id,
+             dataType: 'html',
+             success: function(data){           
+              $(obj).parent().parent().parent().parent().parent().remove();
+              window.location.reload(); 
+             }
+         });
+     }
+     $(function(){      
+          $("body").click(function(e){
+             if(e.target.className !== "search-menu"){
+                $(".search-menu").hide();
+             }
+             
+             if(e.target.className !== "sub-menu-image"){
+                $(".pop-blog-menu").hide();
+             }
+          });
+       });
+</script>
+</head>
+<body>
+<%var userBlogNode = currentNode.session.getNode("/content/blogger/blog/"+currentNode.getProperty("blogId").getString()); %>
+<div id="bg-mask"></div>
+<div class="main-container">
+  <%load("top-menu.esp");%>
+  <div class="body-container">
+    <%load("right-menu.esp");%>
+    <div class="section-left"> 
+      <ol class="post-list search-list">
+        <h1>You searched for, <%=request.getParameter("key")%></h1>
+           <%   
+                var newNodes=request.getAttribute("blogList");
+                var userBlogNode=currentNode.session.getNode("/content/blogger/blog/"+request.getSession(true).getAttribute("blogId").toString());
+                     if(newNodes.size()!=null){
+                        for(var i=0;i<newNodes.size() ;i++) {
+                            if(newNodes.get(i).hasNode("avatar")){
+                                avatarNode=newNodes.get(i).getNode("avatar");
+                            }else{
+                                avatarNode="/apps/blogger/images/picture_user.jpg";
+                            }
+                     %>         
+        <li>
+          <div class="post search-post clearfix">
+           <div class="post-avtar search-avtar"><a href="<%=request.getContextPath()%>/servlet/blogger/view.viewBlog?param=<%=newNodes.get(i).getName()%>" class="avtar-pic"><img src="<%=request.getContextPath()%><%=avatarNode%>" /></a></div>
+           <div class="post-wrapper search-post-wapper" style="min-height: 40px;">
+              <div class="post-header search-header"><span class="header-info"><%=newNodes.get(i).getName()%><br />
+            <a href="javascript:void(0)"></a></span> <span class="post-source search-follow"> 
+            <% 
+            if(currentNode.hasNode("followings"))
+            {
+             var followingNode=currentNode.getNode("followings");
+            
+            if(!(followingNode.hasNode(newNodes.get(i).getName())) && (userBlogNode.getName()!=newNodes.get(i).getName())) { %>
+            <input name="follow" value="follow" type="button" class="close-popup" id="follow"
+              onclick="followBlog('<%=newNodes.get(i).getProperty("blogId")%>','follow',this);" /></span>
+              <%}}%>
+             
+              </div>
+         
+            </div>
+            <div class="search-content clearfix">
+            <ul>
+            <%if(newNodes.get(i).hasNode("Post"))
+             {
+            var postNode=newNodes.get(i).getNode("Post").getNodes();
+            
+            for(var j=0;j<postNode.length && j<3;j++)
+            {
+             var homePost = postNode[j];
+            var postType=homePost.getProperty("postType"); 
+           %>
+             <%if(postType=='text'){%>      
+                  <li class="container-text">
+                    <div class="search-text">
+                        <span><h3> <%=homePost.getProperty("title")%></h3></span>
+                        <p><%=homePost.getProperty("description")%></p>
+                    </div>
+                 </li>
+             <%} else if(postType=='image'){%>
+            <li class="container-image"><div class="search-image">
+            
+            <% 
+                if(homePost.hasNode("Image"))
+                {
+                var Image=homePost.getNode("Image");
+                if(Image.hasNodes())
+                {
+                var imageNode=Image.getNodes();
+                }}
+                                             
+              %> <img src="<%=request.getContextPath()%><%=imageNode[0]%>/x320" />
+     
+            </div></li>
+             <%} else if(postType=='quote'){%>
+                <li style="margin-right:0;" class="container-quote">
+                    <div class="search-quote" style="padding: 9px;">
+                        <span class="quote-mark">&ldquo;</span>
+                        <h3><%=homePost.getProperty("title")%></h3>
+                        <span class="quote-mark">&rdquo;</span>
+                    </div>
+                </li>
+              <% } else if(postType=='link'){%>
+                    <li class="container-link">
+                        <a href="#">
+                            <div class="search-link">
+                                <h3>
+                                    <span><%=homePost.getProperty("title")%></span>
+                                </h3>
+                            </div>
+                        </a>
+                    </li>
+              <% } else if(postType=='audio'){%>
+                    <li class="container-audio">
+                        <div class="search-audio">
+                            <div class=" search-link search-audio">
+                                <div class="search-audio-icon"></div>
+                                <span class="search-audio-text"><%=homePost.getProperty("audioTrack")%></span>
+                            </div>
+                         </div>
+                     </li>
+              <% } else if(postType=='video'){%>
+             <li style="margin-right:0;"class="container-video" ><div class="search-video">
+             <%if((homePost.videoLinkFlag+"")=='false'){%>
+             <img src="images/user-icon.png" alt="" />
+             
+             <% } else { %>
+             
+              <%=homePost.videoThumbnail%>
+            <% } %>
+             <div class="search-video-icon" style="background-size:50px;"></div></div></li>
+             
+             <%}}}%>
+             </ul>
+            
+             </div>
+              <div class="post-footer">
+              </div>
+            
+            
+          </div>
+        </li>
+     <%}}%>
+        
+      </ol>
+      
+      
+    </div>
+  </div>
+  <div class="footer-container"></div>
+</div>
+<div class="full-image-popup" style="display:none;"> <a href="#">
+  <div class="close-image"></div>
+  </a> <a href="#">
+  <div class="next"></div>
+  </a> <a href="#">
+  <div class="prev"></div>
+  </a> <img src="images/Woman-with-two-screens_LOW-RES.jpg" alt=""/></div>
+</body>
+</html>

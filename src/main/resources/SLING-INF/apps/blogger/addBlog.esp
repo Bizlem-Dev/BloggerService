@@ -1,0 +1,104 @@
+<%load("include/header.esp");%>
+<script src="<%=request.getContextPath()%>/apps/blogger/js/jquery.js"></script>
+</head>
+
+
+
+<script type="text/javascript">
+	function callAjax()
+	{
+	   $("#submitBtnId").attr("disabled","true");
+	   if((/^[a-zA-Z0-9- ]*$/.test($("#blogId").val()) == false) || (/\s/.test($("#blogId").val())==true)) {
+           $("#real1").html("");
+           $("#real").html("Contains Special Character or Space. Please Modify!");
+        }else{ 
+    	   var data='blogId='+$("#blogId").val();
+    	   $.ajax({
+    	             type: 'POST',
+    	             url: '<%=request.getContextPath()%>/servlet/blogger/view.ajaxBlog',
+    	             
+    	             data: data,
+    	             dataType: 'html',
+    	             success: function(data){  	
+            	         if(data=='true'){
+            				 $("#real").html("Already exists.Please Change It");
+            				 $("#real1").html("");
+            		      }else{
+                                  $("#real").html("");
+                		          $("#real1").html("Available");
+                		          $("#submitBtnId").removeAttr("disabled");
+            		      }
+    	             }
+    	         });
+    	 }
+	        
+	        
+	}
+</script>
+<script type="text/javascript">
+
+function readURL(input) {
+	if (input.files && input.files[0]) {
+		var reader = new FileReader();
+
+		reader.onload = function(e) {
+			$('#imageId').attr('src', e.target.result).width(55).height(50);
+		};
+
+		reader.readAsDataURL(input.files[0]);
+	}
+}
+</script>
+
+  <body>
+
+<div class="main-container">
+<div class="header-container"></div>
+<div class="body-container">
+  <div class="section-left content-area full-width">
+<h1>Create Blog</h1>
+<h4>
+
+This additional blog can be managed by multiple authors or set to private.
+
+Note: If you want to Like posts or Follow other users with this blog identity, you must log out and create a separate account.
+
+Learn more about Primary vs. Secondary blog features here.
+</h4>
+<div class="msg-validation" id="message" style="display:none"><img src="images/icon_close.gif" border="0" align="absmiddle" />Blog Already exists.Please Change It</div>
+
+<form method="POST" action="<%=request.getContextPath()%>/servlet/blogger/view.addblog" enctype="multipart/form-data" id="uploadImage" name="addBlog" class="form" >
+
+ <div class="form-row">
+
+<div class="left">Title</div><div class="right"><input type="text" id="blogTitle" placeholder="Add Title" name="blogTitle" /></div></div>
+<div class="form-row"><div class="left">Url</div><div class="right"><input type="text" id="blogId" name="blogId" onblur="callAjax();"  /><label id="real" style="color: red"></label><label id="real1" style="color: green"></label></div></div>
+
+<div class="form-row">
+   
+
+ 
+
+    <div class="left">Avtar Image</div><div class="right"><input type="file" id="files" name="files" onchange="readURL(this)"/></div><span><img alt="" id="imageId" src="<%=request.getContextPath()%>/apps/blogger/images/Woman-with-two-screens_LOW-RES.jpg" width="55" height="50"></span></div>
+   
+   
+    
+    <div class="form-row">
+    <div class="left">Description</div><div class="right"><textarea name="description" rows="3"></textarea> </div></div>
+
+
+
+ <div class="button-row">
+    <input type="submit" value="Create Blog" id="submitBtnId" disabled />
+    <a href="<%=request.getContextPath()%>/servlet/blogger/view.home" class="btn">Cancel</a>
+ </div>
+</form>
+
+</div>
+</div>
+
+<div class="footer-container"></div>
+</div>
+</body>
+
+  </html>

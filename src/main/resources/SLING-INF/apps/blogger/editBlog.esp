@@ -1,0 +1,204 @@
+
+<!DOCTYPE html>
+<head>
+<%load("include/header.esp");%>
+
+</head>
+
+
+
+<script type="text/javascript">
+	function callAjax(){
+    	 var id='blogId='+$("#blogId").val();
+    	 $.ajax({
+                 type: 'POST',
+                 url: '<%=request.getContextPath()%>/servlet/blogger/view.ajaxBlog',
+                 data: id,
+                 dataType: 'html',
+                 success: function(data){
+    			         if(data=='true'){
+    			            $("#real").html("Already exists.Please Change It");
+    			         }else{
+    			           $("#real").html("");
+    				       $("#newBlogID").val(data); 
+    			         }  
+                 }
+             });
+	 }
+
+	function followBlog(param){
+	   var id='blogId='+$("#blogId").val()+'&bloggerId='+$("#bloggerId").val()+'&param='+param;
+	   $.ajax({
+             type: 'POST',
+             url: '<%=request.getContextPath()%>/servlet/blogger/view.followBlog', 
+             data: id,
+             dataType: 'html',
+             success: function(data){
+                if(data=='true'){
+                   if(param=='follow'){
+			         $("#real").html("You Successfully Follow Blog");
+			         $("#follow").hide();
+			         $("#unfollow").show();
+			       }else{
+			         $("#real").html("You Successfully UnFollow Blog");
+			         $("#follow").show();
+			         $("#unfollow").hide();
+			       }    
+               }
+             }
+         });
+	}
+	function check(){
+	    var checkstr =  confirm('Do You Want Change Blog ID?');
+		if (checkstr==true){
+	       if($("#enable").attr("checked")){  
+	           $("#blogId").attr("disabled",false);
+		   }else{
+	           $("#blogId").attr("disabled",true);
+	           $("#blogId").val($("#blogID").val());
+	       }
+	    }else{
+	       if($("#enable").attr("checked")){   
+	           $("#enable").attr("checked",false);	
+	       }else{
+	           $("#enable").attr("checked",true);	
+	       }
+	   }
+	}
+	
+	
+	
+</script>
+
+<script type="text/javascript">
+    function readURL(input) {
+    	if (input.files && input.files[0]) {
+    		var reader = new FileReader();
+    		reader.onload = function(e) {
+    			$('#imageId').attr('src', e.target.result).width(55).height(50);
+    		};
+    		reader.readAsDataURL(input.files[0]);
+    	}
+    }
+</script>
+  <body>
+   <%if(!currentNode.getProperty("bloggerId").getString().trim().equals(request.getSession(true).getAttribute("bloggerId").toString().trim())){%>
+        <script>
+           window.location = "<%=request.getContextPath()%>/servlet/blogger/view.home";
+        </script>  
+    <%}%>
+  <div class="main-container">
+    <div class="header-container">
+        <div class="logo"></div>
+        <div class="tab-container">
+          <ul>
+            <li><a href="<%=request.getContextPath()%>/servlet/blogger/view.home"><span class="icon home"></span></a></li>
+          </ul>
+        </div>
+     </div>
+<div class="body-container clearfix">
+<div class="section-right edit-blog content-area full-width">
+  
+<h1>Edit Blog</h1>
+
+<input type="hidden" id="flag" name="flag" value="<%=currentNode.flag?currentNode.flag:""%>">
+
+<form method="POST" action="<%=request.getContextPath()%>/servlet/blogger/view.editblog" enctype="multipart/form-data" id="uploadImage" name="editBlog" class="form">
+
+<input type="hidden" name="blogNodeId"  id="blogID" value="<%=currentNode.blogId?currentNode.blogId:""%>"/>
+<input type="hidden" name="blogId"  id="newBlogID" value="<%=currentNode.blogId?currentNode.blogId:""%>"/>
+<input type="hidden" name="bloggerId" id="bloggerId" value="<%=currentNode.bloggerId?currentNode.bloggerId:""%>"/>
+<input type="hidden" name="userId"   value="<%=currentNode.userId?currentNode.userId:""%>"/>
+<input type="hidden" name="blogType"   value="<%=currentNode.blogType?currentNode.blogType:""%>"/>
+
+
+						<div class="section-left edit-blog"><ul>
+						<% if((request.getParameter("param")+"")==request.getSession(true).getAttribute("blogId").toString()) 
+						{%>
+						  <li class="slected-tab">
+						<%}else{%>
+						  <li>
+						<% } %>
+						
+						<span>
+
+		            <% if(currentNode.session.getNode("/content/blogger/blog/"+request.getSession(true).getAttribute("blogId").toString()).hasNode("avatar")){
+		                          %>
+		                       <img src="<%=request.getContextPath()%><%=currentNode.session.getNode("/content/blogger/blog/"+request.getSession(true).getAttribute("blogId").toString()).getNode("avatar")%>" width="50" height="50"/>
+		                          <%}
+		                          else{  %>
+		                      <img src="<%=request.getContextPath()%>/apps/blogger/images/picture_user.jpg" width="70" height="70"/>
+		                        <%}%>
+
+
+
+					</span><a href="<%=request.getContextPath()%>/servlet/blogger/view.edit?param=<%=request.getSession(true).getAttribute("blogId").toString()%>"><%=request.getSession(true).getAttribute("blogId").toString()%></a></li>
+
+
+					<% var userNode=request.getSession(true).getAttribute("bloggerId").toString(); 
+					 var node = currentNode.session.getNode("/content/blogger/user/"+userNode);
+					if(node.hasNode("blogId"))
+					{
+					var blogNodes=node.getNode("blogId");
+					if(blogNodes.hasNodes())
+					{
+					var blogIds=blogNodes.getNodes();
+					for(var i=0;i<blogIds.length;i++) {
+					         var blog = currentNode.session.getNode("/content/blogger/blog/"+blogIds[i].getName()); %>
+					       <% if((request.getParameter("param")+"")==blog.getProperty("blogId").getString()) 
+					{%><li class="slected-tab">
+					<% } else {%>
+					<li>
+					<% } %><span>
+					<% if(blog.hasNode("avatar")){
+					                          %>
+					                       <img src="<%=request.getContextPath()%><%=blog.getNode("avatar")%>" width="50" height="50"/>
+					                          <%}
+					                          else{  %>
+					                      <img  src="<%=request.getContextPath()%>/apps/blogger/images/picture_user.jpg" width="70" height="70"/>
+					                        <%}%>
+					                        
+					                  </span><a href="<%=request.getContextPath()%>/servlet/blogger/view.edit?param=<%=blog.getProperty("blogId")%>"><%=blog.getProperty("blogId")%></a></li>      
+					
+					<%}}}%>
+					 
+ 
+
+</ul></div>
+<div class="form edit-blog">
+<div class="form-row">
+<div class="left">Title</div><div class="right"><input type="text" id="blogTitle" placeholder="Add Title" name="blogTitle" value="<%=currentNode.blogTitle?currentNode.blogTitle:""%>"/></div></div>
+<div class="form-row">
+<div class="left">Url</div><div class="right"><input type="text"  name="Blog" id="blogId"  value="<%=currentNode.blogId?currentNode.blogId:""%>" disabled="true" onblur="callAjax();"/></div>
+<!--span>Tick to Change.<input type="checkbox" name="enable" id="enable" onclick="check();"></span--></div>
+<br> <label id="real" style="color: red"></label>
+<div class="form-row">
+<div class="left">Avatar</div><div class="right"><input type="file" id="files" name="files" onchange="readURL(this)"/></div>
+            <% if(currentNode.hasNode("avatar")){
+                          %>
+                        <span><img id="imageId" src="<%=request.getContextPath()%><%=currentNode.getNode("avatar")%>" width="55" height="55"/></span>
+                          <%}
+                          else{  %>
+                      <span><img id="imageId" src="<%=request.getContextPath()%>/apps/blogger/images/picture_user.jpg" width="70" height="70"/></span>
+                        <%}%>
+              </div>
+<div class="form-row">
+<div class="left">Description</div><div class="right"><input type="text" id="blogDescription" name="blogDescription" value="<%=currentNode.blogDescription?currentNode.blogDescription:""%>" /></div></div>
+<div class="button-row"><input type="submit"  value="Save"  />
+<a href="<%=request.getContextPath()%>/servlet/blogger/view.home" style="float:right;" class="btn">Cancel</a>
+<% if((request.getParameter("param")+"")==request.getSession(true).getAttribute("blogId").toString()){%>
+    <a href="<%=request.getContextPath()%>/servlet/blogger/view.confirmAccount" class="btn btn-danger">Delete Account</a>
+<%}else{%>
+    <a href="<%=request.getContextPath()%>/servlet/blogger/view.confirmBlog?blogId=<%=request.getParameter("param")%>" class="btn btn-danger" >Delete Blog</a>
+<%}%>
+<!--<input type="button" id="follow" value="Follow" onclick="followBlog('follow');" />-->
+<!--<input type="button" id="unfollow" value="UnFollow" onclick="followBlog('unfollow');" /></div>-->
+</form>
+</div>
+</div>
+</div>
+<div class="footer-container"></div>
+</div>
+</body>
+
+  </html>

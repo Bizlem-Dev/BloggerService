@@ -1,0 +1,18 @@
+<div class="header-container">
+    <div class="logo"></div>
+    <div class="tab-container">
+      <ul>
+        <li><a href="<%=request.getContextPath()%>/servlet/blogger/view.home"><span class="icon home"></span></a></li>
+        <li><a href="<%=request.getContextPath()%>/servlet/blogger/view.edit?param=<%=currentNode.getName()%>"><span class="icon setting"></span></a></li>
+        <li class="search">
+          <span style="margin-right: 0.5em;display:none;" id="searchLoadId">
+            <img height="20px" style="float: none; vertical-align: middle; padding-bottom: 5px; margin-left: 5px;" 
+                 src="<%=request.getContextPath()%>/apps/blogger/images/loading-big.gif" />
+          </span>
+          <span class="icon search" id="searchBtnId"></span>
+          <input type="text" id="searchId" >
+          <div class="search-menu"></div>
+        </li>
+      </ul>
+    </div>
+ </div>

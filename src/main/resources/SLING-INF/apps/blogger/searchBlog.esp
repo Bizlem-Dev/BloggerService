@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="<%=request.getContextPath()%>/apps/blogger/js/jquery.js"></script>
+</head>
+
+
+
+<script type="text/javascript">
+	function callAjax()
+	{
+	 var data='param='+$("#param").val();
+	 if($("#param").val().length>=2)
+	 {
+	$.ajax({
+	             type: 'POST',
+	             url: '<%=request.getContextPath()%>/servlet/blogger/view.tagSearch',
+	             
+	             data: data,
+	             dataType: 'html',
+	             success: function(data){
+	             
+	          $("#result").val(data);
+	             }
+	         });
+	        
+	       } 
+	}
+</script>
+
+
+  <body>
+
+
+
+<form method="POST" action="<%=request.getContextPath()%>/servlet/blogger/view.addblog" enctype="multipart/form-data" id="uploadImage" name="addBlog" >
+
+
+
+<label><span>Search</span><input type="text" id="param" placeholder="Search Blog" name="param" onkeyup="callAjax('');"/></label> 
+<br><label><span>Search</span><textarea cols="40" rows="5" id="result"  name="result"></textarea></label> 
+
+</form>
+</body>
+
+  </html>

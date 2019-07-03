@@ -1,0 +1,124 @@
+<div class="section-right">
+                <ul class="post-menu">
+                    <li class="post-menu-item">
+                      <div style="display:block;">
+                        <%=userBlogNode.blogTitle%>
+                        <span class="sub-menu-image"></span>
+                      </div>
+                      <div class="blog-url"><a href="#"><%=userBlogNode.blogerName%></a></div>
+                    </li>
+                    <li class="pop-blog-menu" style="display: none;margin:0 !important;">
+                      <ul class="blog-menu">
+                        <li class="post-menu-item">
+                           <a href="<%=request.getContextPath()%>/servlet/blogger/view.userPost?user=<%=userBlogNode.getName()%>">
+                              <div><%=userBlogNode.blogTitle%></div>
+                              <span class="blog-image">
+                                <%if(userBlogNode.hasNode("avatar")){%>
+                                    <img src="<%=request.getContextPath()+userBlogNode.getNode("avatar").getPath()%>" />
+                                <%}else{%>
+                                    <img src="<%=request.getContextPath()%>/apps/blogger/images/picture_user.jpg" />
+                                <%}%>  
+                              </span>
+                           </a>
+                           <div class="blog-url">
+                                <a href="#"><%=userBlogNode.blogId%></a>
+                                <a style="float: right;" href="<%=request.getContextPath()%>/servlet/blogger/view.edit?param=<%=userBlogNode.blogId%>" ><img height="11" src="<%=request.getContextPath()%>/apps/blogger/images/blog-delete-icon.png" style="padding-left: 11px;" title="Delete" /> Delete</a>
+                                <a style="float: right;" href="<%=request.getContextPath()%>/servlet/blogger/view.edit?param=<%=userBlogNode.blogId%>" ><img height="11" src="<%=request.getContextPath()%>/apps/blogger/images/blog-edit-icon.png" title="Edit" />  Edit</a>
+                           </div>
+                        </li>
+                      <%if(currentNode.hasNode("blogId") && currentNode.getNode("blogId").hasNodes()){
+                        var blogIdNodes = currentNode.getNode("blogId").getNodes();
+                            for(i in blogIdNodes){
+                            var blogId = currentNode.session.getNode("/content/blogger/blog/"+blogIdNodes[i].getName());
+                        %>
+                            <li class="post-menu-item"><a href="<%=request.getContextPath()%>/servlet/blogger/view.userPost?user=<%=blogId.getName()%>">
+                              <div><%=blogId.blogTitle%></div>
+                              <span class="blog-image">
+                                <%if(blogId.hasNode("avatar")){%>
+                                    <img src="<%=request.getContextPath()+blogId.getNode("avatar").getPath()%>" />
+                                <%}else{%>
+                                    <img src="" />
+                                <%}%>  
+                              </span></a>
+                              <div class="blog-url">
+                                <a href="#"><%=blogId.blogerName%></a>
+                                <a style="float: right;" href="<%=request.getContextPath()%>/servlet/blogger/view.edit?param=<%=blogId.blogId%>" ><img height="11" src="<%=request.getContextPath()%>/apps/blogger/images/blog-delete-icon.png" style="padding-left: 11px;" title="Delete" /> Delete</a>
+                                <a style="float: right;" href="<%=request.getContextPath()%>/servlet/blogger/view.edit?param=<%=blogId.blogId%>" ><img height="11" src="<%=request.getContextPath()%>/apps/blogger/images/blog-edit-icon.png" title="Edit" />  Edit</a>
+                              </div>
+                            </li>    
+                      <%}}%>
+                            <li class="post-menu-item">
+                                <a href="<%=request.getContextPath()%>/servlet/blogger/view.newBlog">
+                                  <div>+ Create New Blog</div>
+                                </a> 
+                            </li>
+                        
+                      </ul>
+                    </li>
+                    <li class="post-menu-item">
+                        <a href="<%=request.getContextPath()%>/servlet/blogger/view.userPost?user=<%=userBlogNode.getName()%>">
+                          <div class="post-menu-item-name">
+                              <span class="icon post"></span>Posts
+                              <span class="count">
+                                <%=(userBlogNode.hasNode("Post") 
+                                     && userBlogNode.getNode("Post").hasNodes())?userBlogNode.getNode("Post").getNodes().length:"0"%>
+                              </span>
+                          </div>
+                        </a>
+                    </li>
+                    <li class="post-menu-item"><a href="<%=request.getContextPath()%>/servlet/blogger/view.userPost?user=<%=userBlogNode.getName()%>&follower">
+                      <div class="post-menu-item-name"><span class="icon followers"></span>Followers
+                        <span class="count">
+                          <%=(userBlogNode.hasNode("followers") 
+                                 && userBlogNode.getNode("followers").hasNodes())?userBlogNode.getNode("followers").getNodes().length:"0"%>
+                        </span>
+                      </div>
+                      </a>
+                    </li>
+                    <li class="post-menu-item"><a href="<%=request.getContextPath()%>/servlet/blogger/view.userPost?user=<%=userBlogNode.getName()%>&draft">
+                      <div class="post-menu-item-name"><span class="icon draft"></span>Draft
+                      <span class="count">
+                        <%=(userBlogNode.hasNode("Draft") 
+                                 && userBlogNode.getNode("Draft").hasNodes())?userBlogNode.getNode("Draft").getNodes().length:"0"%>
+                      </span></div></a></li>
+                    <li class="post-menu-item"><a href="<%=request.getContextPath()%>/servlet/blogger/view.userPost?user=<%=userBlogNode.getName()%>&queue">
+                      <div class="post-menu-item-name"><span class="icon queue"></span>Queue
+                      <span class="count">
+                        <%=(userBlogNode.hasNode("Queued") 
+                                 && userBlogNode.getNode("Queued").hasNodes())?userBlogNode.getNode("Queued").getNodes().length:"0"%>
+                      </span></div></a></li>
+                  </ul>
+                <ul class="post-menu">
+                    <li class="post-menu-item">
+                      <a href="<%=request.getContextPath()%>/servlet/blogger/view.userLike?user=<%=currentNode.getName()%>">
+                        <div class="post-menu-item-name">
+                            <%if(currentNode.hasNode("Like") && currentNode.getNode("Like").hasNodes()){%>
+                                <span class="icon liked"></span>
+                                    Liked <%=currentNode.getNode("Like").getNodes().length%> blogs
+                            <%}else{%>
+                                <span class="icon liked"></span>Like 0 blog
+                            <%}%>
+                        </div>
+                      </a>
+                     </li>
+                    <li class="post-menu-item">
+                      <a href="<%=request.getContextPath()%>/servlet/blogger/view.following?param=<%=currentNode.getName()%>">
+                        <div class="post-menu-item-name">
+                            <%if(currentNode.hasNode("followings") && currentNode.getNode("followings").hasNodes()){%>
+                                <span class="icon following"></span>
+                                    Following <%=currentNode.getNode("followings").getNodes().length%> blogs
+                            <%}else{%>
+                                <span class="icon following"></span>Following 0 blog
+                            <%}%>
+                        </div>
+                      </a>
+                    </li>
+                    <!--li class="post-menu-item">
+                        <a href="javascript:void(0);">
+                            <div class="post-menu-item-name">
+                                <span class="icon find"></span>Find blogs
+                            </div>
+                        </a>
+                    </li-->
+                </ul>
+            </div>

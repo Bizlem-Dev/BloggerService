@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<%
+var currentNodeProvided = ((typeof currentNode != "undefined")); 
+var parameterMap = request.getParameterMap(); 
+%>
+<head>
+<script type="text/javascript" src="<%=request.getContextPath()%>/apps/blogger/js/jquery.simple-dtpicker.js" ></script>
+<script type="text/javascript" src="<%=request.getContextPath()%>/wro/bloggerCommon.js" ></script>
+<link rel="stylesheet" href="<%=request.getContextPath()%>/wro/bloggerCommon.css" />
+<%/*
+<script type="text/javascript" src="<%=request.getContextPath()%>/apps/blogger/js/jquery.simple-dtpicker.js" ></script>
+<link rel="stylesheet" href="<%=request.getContextPath()%>/apps/blogger/css/jquery.simple-dtpicker.css" />
+<script type="text/javascript" src="<%=request.getContextPath()%>/apps/blogger/js/jquery.tokeninput.js"></script>
+<link rel="stylesheet" href="<%=request.getContextPath()%>/apps/blogger/css/token-input.css" />
+*/%>
+<script type="text/javascript">
+tinyMCE.init({
+		
+		mode : "textareas",
+		theme : "advanced",
+		plugins : "advimage",
+
+		// Theme options
+		theme_advanced_buttons1 : "bold,italic,underline,|,justifyleft,justifycenter,justifyright,justifyfull,|,bullist,numlist,|,outdent,indent,image,code",
+	
+	});
+</script>
+<script>
+    function loadFile(input) {
+      var file = input.files[0],
+        url = file.urn || file.name,
+        reader = new FileReader();
+
+      reader.onload = function(event) {
+        ID3.loadTags(url, function() {
+          showTags(url);
+        }, {
+          tags: ["title","artist","picture","album"],
+          dataReader: FileAPIReader(file)
+        });
+      };
+      reader.readAsArrayBuffer(file);
+    }
+    function showTags(url) {
+      var tags = ID3.getAllTags(url);
+      console.log(tags);
+      $('#audioTrackId').val(tags.title?tags.title:"");
+      $('#audioArtistId').val(tags.artist?tags.artist:"");
+      $('#audioAlbumId').val(tags.album?tags.album:"");
+      var image = tags.picture?tags.picture:"";
+      if (image && image.data) {
+        var base64 = "data:" + image.format + ";base64," + Base64.encodeBytes(image.data);
+        $("#imageValueId").val(base64);
+        document.getElementById('coverPageId').setAttribute('src',base64);
+      }
+      $("#postAudioId").hide();
+      $("#viewAudioId").show();
+    }
+    
+    function saveAudio(){
+      var html=$("#audioDescriptionId_ifr").contents().find("#tinymce").html().replace(/&/g,'');
+        $("#submitButtonId").attr("disabled","true");
+        $("#closeButtonId").hide();
+            $("#loadImageId").show();
+            var data, xhr;
+            data = new FormData();
+            if($("#videoId").val()!=""){
+                data.append( "audioFile", $("#audioFileId")[0].files[0] );
+            }else{
+                data.append( "audioFile", "");
+            }
+            data.append( "blogId", ""+$("#blogDId").val() );
+            if($("#typeId").val()=='private'){
+                data.append( "accessType", "private" );
+                data.append( "type", "Post" );
+                data.append( "queuedTime", "" );
+            } else if($("#typeId").val()=='Queued'){
+                data.append( "accessType", "public" );
+                data.append( "type", ""+$("#typeId").val() );
+                data.append( "queuedTime", ""+$("#queuedTimeId").val() );
+            } else{
+                data.append( "accessType", "public" );
+                data.append( "type", ""+$("#typeId").val() );
+                data.append( "queuedTime", "");
+            }
+            data.append( "description", ""+html);
+            data.append( "tags", ""+$("#audioTagId").val());
+            data.append( "postId", ""+$("#postId").val());   
+            <%if(currentNodeProvided && request.getParameterMap().containsKey("postId")){
+                if(parameterMap.containsKey("reBlog")){%>
+                    data.append( "edit", "reblog");
+                <%}else{%>
+                    data.append( "edit", "true");
+                <%}%>
+                data.append( "formerPostType", "<%=request.getParameter("blogType")%>");
+                data.append( "postId", ""+$("#postId").val()); 
+            <%}else{%>
+                data.append( "edit", "false");
+                data.append( "formerPostType", "");
+                data.append( "postId", "0"); 
+            <%}%>
+             <%if(currentNodeProvided && parameterMap.containsKey("reBlog")){%>
+                data.append( "reBlogFlag", "true");
+                data.append( "sourceId","<%=(currentNode.sourceId && ((currentNode.sourceId+"")!=""))?currentNode.sourceId:request.getParameter("blogId")+""%>");
+                data.append( "reBloggerId", "<%=request.getParameter("blogId")%>");
+            <%}else{%>
+                data.append( "reBlogFlag", "<%=(currentNodeProvided && currentNode.reBlogFlag)?currentNode.reBlogFlag:"false"%>");
+                data.append( "sourceId", "<%=(currentNodeProvided && currentNode.sourceId)?currentNode.sourceId:""%>");
+                data.append( "reBloggerId", "<%=(currentNodeProvided && currentNode.reBloggerId)?currentNode.reBloggerId:""%>");
+            <%}%>
+             data.append( "audioLinkFlag", ""+$("#audioFlagId").val());
+             data.append( "audioLink", ""+$("#audioLinkId").val());
+             data.append( "audioTrack", ""+$("#audioTrackId").val());
+             data.append( "audioArtist", ""+$("#audioArtistId").val());
+             data.append( "audioAlbum", ""+$("#audioAlbumId").val());   
+             data.append( "coverPage", ""+$("#imageValueId").val());
+            xhr = new XMLHttpRequest();
+            xhr.open( 'POST', '<%=request.getContextPath()%>/servlet/blogger/posts.postAudio', true );
+            xhr.onreadystatechange = function ( response ) {  
+                if (xhr.readyState == 4 && xhr.status == 200) {                
+                     <%if(request.getParameterMap().containsKey("typePost") 
+               		&& request.getParameter("typePost") == 'reBlog'){%>
+               window.location.reload();
+               <%}else{%>
+               		window.location.reload();
+               	
+               <%}%>
+                }
+            };
+            xhr.send( data );
+    }
+    
+    function audioType(value,obj){
+        $(".audio-tab").children("li").removeClass("active");
+        $(obj).parent().addClass("active");
+        if(value=="upload"){
+            $(".upload-audio-box").show();
+            $(".input-url").hide();
+        }else{
+            $(".upload-audio-box").hide();
+            $(".input-url").show();
+        } 
+    }
+    
+    function checkAudioUrl(){
+        $("#audioId").attr("src",$("#audioUrlId").val());
+        $("#postAudioId").hide();
+        $("#viewAudioId").show();
+        $("#audioFlagId").val('true');
+        $("#audioLinkId").val($("#audioUrlId").val());
+        audiojs.events.ready(function() {
+            audiojs.createAll();
+        });
+    }
+    
+    $(function(){
+        $(".audio-close").click(function(){
+            $("#audioFileId").val("");
+            $("#postAudioId").show();
+            $("#viewAudioId").hide();
+            $('#audioTrackId').val("");
+            $('#audioArtistId').val("");
+            $('#audioAlbumId').val("");
+            $('#imageValueId').val("");
+            $('#coverPageId').attr('src',"");  
+            $("#audioId").attr("src","");
+            $("#audioUrlId").val('');
+            $("#audioFlagId").val('false');
+            $("#audioLinkId").val("");
+        });
+        
+        $("#typeId").change(function(){
+            if($(this).val()=='Queued'){
+                $("#queuedTimeId").show();
+            }else{
+                $("#queuedTimeId").hide();
+            }
+        });
+        
+        $('*[name=queued]').appendDtpicker({
+                "dateFormat": "DD/MM/YYYY hh:mm"
+        });
+    });
+</script>
+</head>
+<body>
+<%var blogIdList = request.getAttribute("blogID");%>
+<div class="popup-container" id="audio-popup" >
+  <div class="header-container">
+    <div class="popup-blog-name clearfix">
+          
+        <%if(currentNodeProvided && parameterMap.containsKey("reBlog")){%>
+             <div class="reblog-post">
+                <a href="#" class="icon reblock"></a>
+                <%=request.getParameter("blogId")%>
+            </div>
+        <%}%> 
+        <%if(currentNodeProvided && !parameterMap.containsKey("reBlog")){%>
+                <a class="blog-name-change" style="background:url();" href="javascript:void(0)" ><%=currentNodeProvided?request.getParameter("blogId"):blogIdList.get(0)%></a>
+        <%}else{%>
+                <a class="blog-name-change" href="javascript:void(0)" onclick="openBlogId(this)"><%=blogIdList.get(0)%></a>
+        <%}%>   
+      <div id="blog-name-menu" class="popup-menu" style="display: none;margin:16px 0 0;"> <span class="nipple"></span>
+        <ul class="blog-menu">
+          <%  for(var i=0;i<blogIdList.size();i++){
+                if(currentNodeProvided && (request.getParameter("blogId")+"") == (blogIdList.get(i)+"") ){
+                %>
+                    <li class="post-menu-item selected"><a href="javascript:void(0)">
+                       <div onclick="changeBlog('<%=blogIdList.get(i)%>',this)" id="name-publish"><%=blogIdList.get(i)%></div></a> 
+                    </li>    
+                <%}else if(!currentNodeProvided && i==0){%>
+                     <li class="post-menu-item selected"><a href="javascript:void(0)">
+                       <div onclick="changeBlog('<%=blogIdList.get(i)%>',this)" id="name-publish"><%=blogIdList.get(i)%></div></a> 
+                    </li> 
+                <%}else{%>
+                    <li class="post-menu-item"><a href="javascript:void(0)">
+                       <div onclick="changeBlog('<%=blogIdList.get(i)%>',this)" id="name-publish"><%=blogIdList.get(i)%></div></a> 
+                    </li>
+                <%}%>
+           <%}%>   
+        </ul>
+      </div>
+    </div>
+  </div>
+  <input type="hidden" value="<%=currentNodeProvided && (!parameterMap.containsKey("reBlog"))?request.getParameter("blogId"):blogIdList.get(0)%>" id="blogDId" />  
+   <%if(currentNodeProvided){%>    
+    <div id="postAudioId" style="display:none;">
+  <%}else{%>
+    <div id="postAudioId" >
+  <%}%>
+      <ul class="audio-tab"> 
+          <li class="active"><a href="javascript:void(0);" onclick="audioType('upload',this);" class="audio-Upload">Upload</a></li>
+          <li><a href="javascript:void(0);" onclick="audioType('url',this);" class="URL">External URL</a></li>
+      </ul>
+      <p class="upload-audio-box">
+        <span class="upload-text-audio">Choose Up to 10 MB, MP3 File</span>
+        <input type="file" id="audioFileId" onchange="loadFile(this)" />
+      </p>
+      <p class="input-url" style="display:none;">
+         <input type="text" style="width:83% !important;" placeholder="URL" id="audioUrlId" >
+         <input type="button" style="margin-top: -4px; height: 44px;" value="Check" onclick="checkAudioUrl()">
+      </p>
+  </div>
+  <%if(currentNodeProvided){%>    
+    <div id="viewAudioId">
+  <%}else{%>
+    <div id="viewAudioId" style="display:none;">
+  <%}%>
+    <div class="audio-info clearfix">
+      <div class="audio-content">
+          <div class="audio-desc">
+              <ul>
+                  <li><span><input type="text" id="audioTrackId" value="<%=currentNodeProvided?currentNode.audioTrack:""%>" placeholder="Audio name" /></span><i>Track</i></li>
+                  <li><span><input type="text" id="audioArtistId" value="<%=currentNodeProvided?currentNode.audioArtist:""%>" placeholder="Artist name" /></span><i>Artist</i></li>
+                  <li><span><input type="text" id="audioAlbumId" value="<%=currentNodeProvided?currentNode.audioAlbum:""%>" placeholder="Album name" /></span><i>Album</i></li>
+                  <li class="ecolizer-box"></li>
+              </ul>
+          </div>
+          <div class="audio-cover-image"><img src="<%=currentNodeProvided?currentNode.coverPage:""%>" id="coverPageId" height="100%" width="100%"/></div>
+      </div>
+      <%if(!parameterMap.containsKey("reBlog")){%>
+        <div class="audio-close"></div>
+      <%}%>
+   </div>
+   <p><audio id="audioId" src="" preload="false" style="display:none;width:90%"></audio></p>
+   <p><textarea class="ckeditor" id="audioDescriptionId" cols="80" id="editor1" name="editor1" rows="10"><%=currentNodeProvided?currentNode.description:""%></textarea></p>
+   <p class=""><input name="" id="audioTagId" type="text" /></p>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $("#audioTagId").tokenInput("", {
+                theme: "custom",
+                allowFreeTagging: true,
+                preventDuplicates: true,
+                prePopulate: [
+                    <%if(currentNodeProvided && currentNode.hasNode("Tags") && currentNode.getNode("Tags").hasProperty("tags")){
+                        var tagValue = currentNode.getNode("Tags").getProperty("tags").getValues();
+                        for(var p=0;p<tagValue.length;p++){%>                             
+                            {id:"<%=tagValue[p].getString()%>",name:"<%=tagValue[p].getString()%>"},      
+                        <%}
+                    }%>   
+                ]
+            });
+        });
+    </script>
+   <div id="publish-menu" class="popup-menu" style="display:none;"> 
+        <ul class="blog-menu">
+        <% var submitValue="Publish";
+            var submitType="Post";%>
+          <%if(currentNodeProvided && (request.getParameter("blogType")+"") == 'Post' 
+                && currentNode.accessType=='public'){
+                submitValue = "Publish";
+                submitType = "Post";
+          %>
+                <li class="post-menu-item submitClass selected" onclick="changeName('Publish',this,'Post')">
+                    <a href="javascript:void(0)">
+                        <div id="name-publish">Publish Now</div>
+                    </a>
+                </li>
+          <%}else if(!currentNodeProvided){%>
+                <li class="post-menu-item submitClass selected" onclick="changeName('Publish',this,'Post')">
+                    <a href="javascript:void(0)">
+                        <div id="name-publish">Publish Now</div>
+                    </a>
+                </li>
+          <%}else{%>
+                <li class="post-menu-item submitClass" onclick="changeName('Publish',this,'Post')">
+                    <a href="javascript:void(0)">
+                        <div id="name-publish">Publish Now</div>
+                    </a>
+                </li>
+          <%}%>
+          <%if(currentNodeProvided && (request.getParameter("blogType")+"") == 'Post'){}
+            else{%>
+          <%if(currentNodeProvided && (request.getParameter("blogType")+"") == 'Queued'){
+            submitValue = "Schedule Post";
+            submitType = "Queued";
+          %>
+                <li class="post-menu-item submitClass selected" onclick="changeName('Schedule Post',this,'Queued')">
+                    <a href="javascript:void(0)">
+                        <div id="name-publish" class="publish-now">Publish On</div><br>
+                        <input type="text" name="queued" id="queuedTimeId" style="display:none;" class="publish-input"
+                            value="<%=(currentNodeProvided && currentNode.scheduledDate)?currentNode.scheduledDate:""%>"  />
+                    </a> 
+                  </li>
+          <%}else{%>
+                <li class="post-menu-item submitClass" onclick="changeName('Schedule Post',this,'Queued')">
+                    <a href="javascript:void(0)">
+                        <div id="name-publish" class="publish-now">Publish On</div><br>
+                        <input type="text" name="queued" id="queuedTimeId" style="display:none;" class="publish-input"
+                            value="<%=(currentNodeProvided && currentNode.scheduledDate)?currentNode.scheduledDate:""%>"  />
+                    </a> 
+                  </li>
+          <%}%>    
+          <%if(currentNodeProvided && (request.getParameter("blogType")+"") == 'Draft'){
+            submitValue = "Save Draft";
+            submitType = "Draft";
+          %>
+                <li class="post-menu-item submitClass selected" onclick="changeName('Save Draft',this,'Draft')">
+                    <a href="javascript:void(0)">
+                        <div id="name-publish">Save as Draft</div>
+                    </a>
+                 </li>
+          <%}else{%>
+            <li class="post-menu-item submitClass" onclick="changeName('Save Draft',this,'Draft')">
+                <a href="javascript:void(0)">
+                    <div id="name-publish">Save as Draft</div>
+                </a>
+              </li>
+          <%}%>
+          <%}%>
+          <%if(currentNodeProvided && (request.getParameter("blogType")+"") == 'Post' 
+                && currentNode.accessType=='private'){
+                submitValue = "Create Private Post";
+                submitType = "private";
+          %>
+                <li class="post-menu-item submitClass selected" onclick="changeName('Create Private Post',this,'private')">
+                    <a href="javascript:void(0)">
+                        <div id="name-publish">Private</div>
+                    </a>
+                  </li>
+          <%}else{%>
+                <li class="post-menu-item submitClass" onclick="changeName('Create Private Post',this,'private')">
+                    <a href="javascript:void(0)">
+                        <div id="name-publish">Private</div>
+                    </a>
+                  </li>
+          <%}%>
+          
+        </ul>
+      </div>
+    <input type="submit" id="submitButtonId" onclick="saveAudio();" class="publish-btn" value="<%=submitValue%>" />
+    <input type="hidden" id="typeId" value="<%=submitType%>" />
+    <div class="arrow-btn" onclick="showDiv(this);"><a class="arrow-pop" href="javascript:void(0);"></a></div>
+    </div>   
+    <p>
+        <%if(!currentNodeProvided){%>
+            <input name="Button" type="button" value="Close" id="closeButtonId" class="close-popup" onclick="closePop()">
+        <%}else{%>    
+            <input name="Button" type="button" value="Close" id="closeButtonId" class="close-popup" onclick="closeEditBlock(this)">
+        <%}%>
+        <img src="<%=request.getContextPath()%>/apps/blogger/images/loading.gif" id="loadImageId" height="28"  style="display:none;float:right;"/>
+    </p>
+  </div>
+    <input type="hidden" id="postId" value="<%=currentNodeProvided?currentNode.getName():"0"%>"  />
+    <input type="hidden" id="audioFlagId" value="<%=currentNodeProvided?currentNode.audioLinkFlag:"false"%>"  />
+    <input type="hidden" id="audioLinkId"  value="<%=currentNodeProvided?currentNode.audioLink:""%>" />
+    <input type="hidden" id="imageValueId" value="" /> 
+</body>
+</html>    

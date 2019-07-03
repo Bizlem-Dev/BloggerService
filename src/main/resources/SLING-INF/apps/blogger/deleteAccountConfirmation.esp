@@ -1,0 +1,55 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Untitled Document</title>
+<style>
+body{background:#333; font-family:Arial, Helvetica, sans-serif;}
+.delete-confirmation {margin: auto; width: 400px; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); -webkit-transform: translate(-50%, -50%);}
+.delete-confirmation > h1, .delete-confirmation > h2 {color: #fff; font-size: 2em; font-weight: bold; line-height: 1.1em; margin: 0 0 13px; text-align: center; text-shadow: 0 1px 4px #000000;}
+.delete-confirmation > h2 {font-size: 1.1em; line-height: 1.3em;}
+.delete-confirmation > .btn {background: -moz-linear-gradient(center top , #79A54E 0px, #66923A 100%) repeat scroll 0 0 rgba(0, 0, 0, 0); border: 1px solid #68953C; border-radius: 4px 4px 4px 4px; box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.4) inset; color: #FFFFFF; cursor: pointer; display: block; font-size: 1.2em; font-weight: bold; margin: 0; padding: 10px 0; text-align: center; text-decoration: none; text-shadow: 0 -1px 0 #000000; width: 100%;}
+.delete-confirmation > .btn.red {background: -moz-linear-gradient(center top , #BA2121 0px, #A51A1A 100%) repeat scroll 0 0 rgba(0, 0, 0, 0); border: 1px solid #9D1E1E;}
+.delete-confirmation:first-child > .btn{margin:1em 0;}
+</style>
+</head>
+
+<body>
+<div class="delete-confirmation">
+<% if(request.getAttribute("confirm")=='confirmAccount') {%>
+<h1>Are you sure you want to delete your <em>entire account</em>?</h1>
+<h2>This will delete the following blogs  <br /><em><%=request.getSession(true).getAttribute("blogId").toString()%></em> 
+
+<% if(currentNode.hasNode("blogId"))
+{
+var blogIdNode=currentNode.getNode("blogId");
+if(blogIdNode.hasNodes())
+{
+var blogIds=blogIdNode.getNodes();
+var length1=blogIds.length+1;
+for(var i=0;i<blogIds.length;i++)
+{ %>
+<% if(i<blogIds.length-1) { %> 
+and <em><%=blogIds[i].getName()%></em>
+<% } else { %>
+
+and <em><%=blogIds[i].getName()%></em> and all of their content.
+<%}}}}} else {%>
+
+<h2>Are you sure you want to delete your <em><%=request.getParameter("blogId")%> Blog</em> and all of its content? 
+
+
+
+<% } %>
+
+</h2>           
+<a class="btn" href="<%=request.getContextPath()%>/servlet/blogger/view.home">No, I don't want to do that.</a>
+<% if(request.getAttribute("confirm")=='confirmAccount') { %>
+<a class="btn red" href="<%=request.getContextPath()%>/servlet/blogger/view.deleteAccount">Yes, delete my account and <%=length1?length1:"1"%> blogs.</a>
+<% } else { %>
+<a class="btn red" href="<%=request.getContextPath()%>/servlet/blogger/view.deleteBlogId?blogId=<%=request.getParameter("blogId")%>">Yes, delete <%=request.getParameter("blogId")%> </a>
+<% } %>
+</div>
+</body>
+</html>
+

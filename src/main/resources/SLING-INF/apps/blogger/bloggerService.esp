@@ -1,0 +1,110 @@
+
+<!DOCTYPE html>
+<html>
+
+
+
+<meta charset="utf-8" />
+ <meta http-equiv="X-UA-Compatible" content="IE=8" />
+<title>Person Profile</title>
+
+
+
+ <script type="text/javascript">
+
+function linkifyURL (match, offset, string)
+{
+    var re =/https?:\/\/(?:[0-9A-Z-]+\.)?(?:youtu\.be\/|youtube\.com(?:\/embed\/|\/v\/|\/watch\?v=|\/ytscreeningroom\?v=|\/feeds\/api\/videos\/|\/user\S*[^\w\-\s]|\S*[^\w\-\s]))([\w\-]{11})[?=&+%\w-]*/ig;
+
+    var m = re.exec (match);
+    if (m)
+    {
+        return '<br><iframe title="YouTube video player" class="youtube-player" type="text/html" width="425" height="350" src="http://www.youtube.com/embed/' + m[1] + '" frameborder="0"></iframe><br>';
+    }
+    else return '<a href="' + match + '">' + match + '</a>';
+}
+
+function linkifyYouTubeURLs () 
+{
+    var element = document.getElementById ('CPH_Main_postContent');
+
+    element.innerHTML = element.innerHTML.replace (/\b(?:https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|]/ig, linkifyURL);
+}
+
+
+function getDailyMotionId() {
+alert("hiiiiiiiiii");
+var url = 
+alert(url);
+    var m = url.match(/^.+dailymotion.com\/(video|hub)\/([^_]+)[^#]*(#video=([^_&]+))?/);
+    alert(m);
+    if (m !== null) {
+        if(m[4] !== undefined) {
+            return m[4];
+            alert("yes");
+        }
+        return m[2];
+        alert("no");
+    }
+    return null;
+}
+function testUrlForMedia() {
+var pastedData ="http://www.metacafe.com/watch/10962385/how_to_cook_a_breakfast_burrito_handle_it/";
+
+
+var success = false;
+var media   = {};
+if (pastedData.match('http://(www.)?youtube|youtu\.be')) {
+    if (pastedData.match('embed')) { youtube_id = pastedData.split(/embed\//)[1].split('"')[0]; }
+    else { youtube_id = pastedData.split(/v\/|v=|youtu\.be\//)[1].split(/[?&]/)[0]; }
+    media.type  = "youtube";
+    media.id    = youtube_id;
+     alert(media.id);
+    success = true;
+    
+}
+else if (pastedData.match('http://(player.)?vimeo\.com')) {
+    vimeo_id = pastedData.split(/video\/|http:\/\/vimeo\.com\//)[1].split(/[?&]/)[0];
+    media.type  = "vimeo";
+    media.id    = vimeo_id;
+     alert(media.id);
+    success = true;
+}
+else if (pastedData.match('http://player\.soundcloud\.com')) {
+    soundcloud_url = unescape(pastedData.split(/value="/)[1].split(/["]/)[0]);
+    soundcloud_id = soundcloud_url.split(/tracks\//)[1].split(/[&"]/)[0];
+    media.type  = "soundcloud";
+    media.id    = soundcloud_id;
+    alert(media.id);
+    success = true;
+}
+else if (pastedData.match('http://(?:www\.)?metacafe\.com/(?:watch|fplayer)/([^/]+)/')) {
+alert("hiiiii in meta cafe");
+ 
+    var metacafe_id = pastedData.split("/");
+    media.type  = "metacafe";
+    media.id    = metacafe_id;
+  alert(metacafe_id[4]);
+    success = true;
+}
+if (success) { return media; }
+else { alert("No valid media id detected"); }
+return false;
+}
+
+    </script>
+
+
+
+</head>
+  <body id="CPH_Main_postContent" onload="linkifyYouTubeURLs();">
+    <p>This is youtube link: http://www.youtube.com/watch?v=vYDtquU7ji8</p>
+    <p>This is normal link: http://www.youtube.com/watch?v=Mfg2kKU9tl4</p>
+    <form>
+  
+   <input type="button" value="sub" align="left" onclick="testUrlForMedia();"/>
+
+   </form>
+  </body>
+</html>
+

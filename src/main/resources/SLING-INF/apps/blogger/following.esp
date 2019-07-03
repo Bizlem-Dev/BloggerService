@@ -1,0 +1,198 @@
+<%load("include/header.esp");%>
+<script type="text/javascript">
+    function followBlog(blogId,param,obj){
+     var id='blogId='+blogId+'&param='+param;
+        $.ajax({
+             type: 'POST',
+             url: '<%=request.getContextPath()%>/servlet/blogger/view.followBlog',
+             data: id,
+             dataType: 'html',
+             success: function(data){
+                if(data=='true')
+                {
+              $(obj).parent().parent().parent().remove();
+              window.location.reload();
+                 }
+             }
+         });
+     }
+    
+    function followingBlog(blogId,param,obj){
+        var id='blogId='+blogId+'&param='+param;
+        $.ajax({
+             type: 'POST',
+             url: '<%=request.getContextPath()%>/servlet/blogger/view.followBlog', 
+             data: id,
+             dataType: 'html',
+             success: function(data){
+                 $(obj).parent().parent().remove();
+                window.location.reload();
+             }
+         });
+       }
+</script>
+<script type="text/javascript">
+    function callAjax(search){
+        var data='param='+$("#param").val();
+        if($("#param").val().length>=2){
+            $.ajax({
+                type: 'POST',
+                url: '<%=request.getContextPath()%>/servlet/blogger/view.followerSearch',
+                data : data,
+                dataType : 'html',
+                async : true,
+                success : function(data) {
+                    $(".follower-menu").show();
+                    $(".follower-menu").html(data);
+                }
+            });
+        }
+    }
+    $(function(){
+        $("body").click(function(e){
+             if(e.target.className !== "follower-menu"){
+                $(".follower-menu").hide();
+             }
+          });
+    });
+</script>
+</head>
+
+<body>
+    <%
+        var currentNodeProvided = ((typeof currentNode != "undefined") );
+        if(!currentNode.getProperty("bloggerId").getString().trim().equals(request.getSession(true).getAttribute("bloggerId").toString().trim())){%>
+        <script>
+           window.location = "<%=request.getContextPath()%>/servlet/blogger/view.home";
+        </script>  
+        <%}
+    %>
+    <div class="main-container">
+         <div class="header-container">
+            <div class="logo"></div>
+            <div class="tab-container">
+              <ul>
+                <li><a href="<%=request.getContextPath()%>/servlet/blogger/view.home"><span class="icon home"></span></a></li>
+                <li><a href="<%=request.getContextPath()%>/servlet/blogger/view.edit?param=<%=currentNode.getName()%>"><span class="icon setting"></span></a></li>
+              </ul>
+            </div>
+         </div>
+        <div class="body-container"> 
+            <div class="section-right">
+                <div class="followers clearfix">
+                    <ul>
+                        <%if(currentNode.hasNode("Like")){%>
+                        <%  likeList = Packages.org.apache.sling.commons.json.JSONObject();
+                            if(currentNodeProvided ){
+                                var node = currentNode.getNode("Like").getNodes();
+                                var likeLength = node.length;
+                                for(var i=0;i<node.length;i++) {
+                                    var blogId = node[i].getProperty("BlogId").getString();
+                                    json = Packages.org.apache.sling.commons.json.JSONObject();
+                                    if(likeList.has(blogId)){
+                                        json.put("count", likeList.getJSONObject(blogId).getInt("count")+1);
+                                        likeList.put(blogId, json);
+                                    }else{
+                                        json.put("count","1");
+                                        likeList.put(blogId,json);  
+                                    }
+                                }
+                              }
+                              
+                              jsonList = likeList.keys();
+                              while(jsonList.hasNext()) {
+                                key = jsonList.next();
+                                var blog = currentNode.session.getNode("/content/blogger/blog/"+key);
+                                count = Packages.java.lang.Math.round((likeList.getJSONObject(key).getInt("count")*100)/likeLength);
+                                %>
+                                   <li>
+                                       <%if(blog.hasNode("avatar")){%>
+                                           <img title="<%=blog.getName()%> is <%=count%>% attached" src="<%=request.getContextPath()%><%=blog.getNode("avatar")%>"
+                                                width="50" height="50" />
+                                       <%}else{%>                          
+                                            <img title="<%=blog.getName()%> is <%=count%>% attached" id="imageId" src="<%=request.getContextPath()%>/apps/blogger/images/user-icon.jpg"
+                                                                width="50" height="50" /> 
+                                       <%}%>
+                                   </li>
+                                <%
+                              }
+                           }
+                        %>
+
+
+
+
+
+                    </ul>
+                    <span>Your most liked blogs </span>
+                </div>
+            </div>
+            <div class="section-left content-area">
+                <h2>Following</h2>
+                <ol class="follower-list">
+                    <li class="follow-form"><a href="#" class="follower-pic"><img
+                            src="<%=request.getContextPath()%>/apps/blogger/images/search.png" /></a>
+                        <div class="follower-search">
+                            <input type="text" id="param" class="search-user"
+                                placeholder="Enter the URL, username, or email address to follow"
+                                name="param" onkeyup="callAjax('search');" />
+                        </div>
+                        <div class="action-button"></div> <span style="display: none;"><img
+                            src="images/sorry-follow_sad.png" alt="" align="left" />Sorry,
+                            we couldn't find that log on blogger </span></li>
+                    <li>
+                        <%
+                            if(currentNode.hasNode("followings")){
+                        %> <%
+         if(currentNodeProvided ){
+          var count=0;
+
+         var nodes = currentNode.getNode("followings").getNodes();
+          for(var i=0;i<nodes.length;i++) {
+          var blogNode = currentNode.session.getNode("/content/blogger/blog/"+nodes[i].getName());
+          count=count+1;
+                 %> 
+                    <li><a href="<%=request.getContextPath()%>/servlet/blogger/view.blogView?param=<%=blogNode.getProperty("blogId")%>" class="follower-pic"> <%
+     if(blogNode.hasNode("avatar")){
+                    %> <img src="<%=request.getContextPath()%><%=blogNode.getNode("avatar")%>" width="50" height="50" /> <%
+                          }
+                   else{
+               %> <img id="imageId" src="<%=request.getContextPath()%>/apps/blogger/images/user-icon.jpg" width="70" height="70" /> <% }%>
+
+
+                    </a>
+                    <div class="follower-info">
+                            <div class="name">
+                                <a href="#"><%=blogNode.getProperty("blogId")%>
+                            </div>
+                            <!--div class="detail">Updated 18 hours ago</div-->
+                        </div>
+                        <div class="action-button">
+                            <input name="follow" value="Unfollow" type="button"
+                                class="close-popup" id="unfollow"
+                                onclick="followBlog('<%=blogNode.getProperty("blogId")%>','unfollow',this);" />
+                        </div></li>
+
+                    <%
+                        }  var number=count;  }
+                    %>
+
+                    <%
+                        }  else{
+                    %>
+                    <li>No Followings Exist</li>
+
+                    <%
+                        }
+                    %>
+
+                </ol>
+
+                <ol class="follower-list follower-menu" style="display: none;">
+                </ol>
+            </div>
+        </div>
+        <div class="footer-container"></div>
+    </div>
+</body>
+</html>

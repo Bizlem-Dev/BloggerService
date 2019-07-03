@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<%
+var currentNodeProvided = ((typeof currentNode != "undefined")); 
+var parameterMap = request.getParameterMap();
+%>
+<head>
+<script type="text/javascript" src="<%=request.getContextPath()%>/apps/blogger/js/jquery.simple-dtpicker.js" ></script>
+<script type="text/javascript" src="<%=request.getContextPath()%>/wro/bloggerCommon.js" ></script>
+<link rel="stylesheet" href="<%=request.getContextPath()%>/wro/bloggerCommon.css" />
+<%/*
+<script type="text/javascript" src="<%=request.getContextPath()%>/apps/blogger/js/jquery.tokeninput.js"></script>
+<link rel="stylesheet" href="<%=request.getContextPath()%>/apps/blogger/css/token-input.css" />
+<script type="text/javascript" src="<%=request.getContextPath()%>/apps/blogger/js/jquery.simple-dtpicker.js" ></script>
+<link rel="stylesheet" href="<%=request.getContextPath()%>/apps/blogger/css/jquery.simple-dtpicker.css" />
+*/%>
+<script>
+    function saveTextPost(){
+        $("#submitButtonId").attr("disabled","true");
+        $("#closeButtonId").hide();
+        $("#loadImageId").show();
+        var data="blogId="+$("#blogDId").val();
+        if($("#typeId").val()=='private'){
+            data+= "&accessType=private";
+            data+= "&type=Post";
+            data+= "&queuedTime=";
+        }else if($("#typeId").val()=='Queued'){
+            data+= "&accessType=public";
+            data+= "&type="+$("#typeId").val();
+            data+= "&queuedTime="+$("#queuedTimeId").val();
+        }else{
+            data+= "&accessType=public";
+            data+= "&type="+$("#typeId").val();
+            data+= "&queuedTime=";
+        }
+        data+= "&link="+$("#linkId").val();
+        data+= "&title="+$("#linkTitleId").val();
+        data+= "&description="+$("#linkDescriptionId").val();
+        data+= "&tags="+$("#linkTagId").val();
+        data+= "&postId="+$("#postId").val();
+        <%if(currentNodeProvided && parameterMap.containsKey("postId")  
+                && !parameterMap.containsKey("reBlog")){%>
+             data+= "&edit=true";
+             data+= "&formerPostType=<%=request.getParameter("blogType")%>";
+             data+= "&postId="+$("#postId").val();
+        <%}else{%>
+             data+= "&edit=false";
+             data+= "&formerPostType=";
+             data+= "&postId=0";
+        <%}%>
+        <%if(currentNodeProvided && parameterMap.containsKey("reBlog")){%>
+            data+= "&reBlogFlag=true";
+             data+= "&sourceId=<%=(currentNode.sourceId && ((currentNode.sourceId+"")!=""))?currentNode.sourceId:request.getParameter("blogId")+""%>";
+            data+= "&reBloggerId=<%=request.getParameter("blogId")%>";
+        <%}else{%>
+            data+= "&reBlogFlag=<%=(currentNodeProvided && currentNode.reBlogFlag)?currentNode.reBlogFlag:"false"%>";
+            data+= "&sourceId=<%=(currentNodeProvided && currentNode.sourceId)?currentNode.sourceId:""%>";
+            data+= "&reBloggerId=<%=(currentNodeProvided && currentNode.reBloggerId)?currentNode.reBloggerId:""%>";
+        <%}%>
+        $.ajax({
+            type : 'POST',
+            url : '<%=request.getContextPath()%>/servlet/blogger/posts.postLink',
+            data : data,
+            dataType : 'html',
+            success : function(data){
+                 <%if(request.getParameterMap().containsKey("typePost") 
+               		&& request.getParameter("typePost") == 'reBlog'){%>
+               		window.location.reload();
+               <%}else{%>
+               		//window.location.reload();
+               	window.location.reload();
+               <%}%>
+            }
+        });
+    }
+    
+    $(function(){
+        $("#typeId").change(function(){
+            if($(this).val()=='Queued'){
+                $("#queuedTimeId").show();
+            }else{
+                $("#queuedTimeId").hide();
+            }
+        });
+    });
+    $(function(){
+        $('*[name=queued]').appendDtpicker({
+                "dateFormat": "DD/MM/YYYY hh:mm"
+        });
+    });
+    $(function(){
+        $("#linkId").blur(function(){
+            if($("#linkId").val()!=""){
+                $(".loader").show();
+                var link =  $("#linkId").val();
+                result = link.replace(/.*?:\/\//g, "");
+                $("#linkId").val("http://"+result);
+                $.ajax({
+                    type : 'GET',
+                    url : '<%=request.getContextPath()%>/servlet/blogger/posts.getUrlContent',
+                    data : 'paramUrl=http://'+result,
+                    dataType : 'html',
+                    success : function(data){
+                       var obj = $.parseJSON(data);
+                       $("#linkTitleId").val(obj.title);
+                       $("#linkDescriptionId").val(obj.description);
+                       $("#viewTitleId").html(obj.title);
+                       $("#viewLinkId").html(result);
+                       $(".link-box").show();
+                       $(".loader").hide();
+                    }
+                });
+            }
+        });
+        
+        $("#linkTitleId").keyup(function(){
+            $("#viewTitleId").html($("#linkTitleId").val());
+        });
+    });
+</script>
+</head>
+<body>
+    <%var blogIdList = request.getAttribute("blogID");%>
+    <div class="popup-container" id="link-popup">
+      <div class="header-container">
+        <div class="popup-blog-name clearfix">
+             <%if(currentNodeProvided && parameterMap.containsKey("reBlog")){%>
+                 <div class="reblog-post">
+                    <a href="#" class="icon reblock"></a>
+                    <%=request.getParameter("blogId")%>
+                </div>
+            <%}%> 
+            <%if(currentNodeProvided && !parameterMap.containsKey("reBlog")){%>
+                    <a class="blog-name-change" style="background:url();" href="javascript:void(0)" ><%=currentNodeProvided?request.getParameter("blogId"):blogIdList.get(0)%></a>
+            <%}else{%>
+                    <a class="blog-name-change" href="javascript:void(0)" onclick="openBlogId(this)"><%=blogIdList.get(0)%></a>
+            <%}%>    
+          <div id="blog-name-menu" class="popup-menu" style="display: none;margin:16px 0 0;"> <span class="nipple"></span>
+            <ul class="blog-menu">
+              <%  for(var i=0;i<blogIdList.size();i++){
+                    if(currentNodeProvided && (request.getParameter("blogId")+"") == (blogIdList.get(i)+"") ){
+                    %>
+                        <li class="post-menu-item selected"><a href="javascript:void(0)">
+                           <div onclick="changeBlog('<%=blogIdList.get(i)%>',this)" id="name-publish"><%=blogIdList.get(i)%></div></a> 
+                        </li>    
+                    <%}else if(!currentNodeProvided && i==0){%>
+                         <li class="post-menu-item selected"><a href="javascript:void(0)">
+                           <div onclick="changeBlog('<%=blogIdList.get(i)%>',this)" id="name-publish"><%=blogIdList.get(i)%></div></a> 
+                        </li> 
+                    <%}else{%>
+                        <li class="post-menu-item"><a href="javascript:void(0)">
+                           <div onclick="changeBlog('<%=blogIdList.get(i)%>',this)" id="name-publish"><%=blogIdList.get(i)%></div></a> 
+                        </li>
+                    <%}%>
+               <%}%>   
+            </ul>
+          </div>
+        </div>
+      </div>
+      <input type="hidden" value="<%=currentNodeProvided && (!parameterMap.containsKey("reBlog"))?request.getParameter("blogId"):blogIdList.get(0)%>" id="blogDId" />
+      <%if(currentNodeProvided){%>
+        <div class="link-box"> 
+            <span id="viewTitleId" ><%=currentNodeProvided?currentNode.title:""%></span>
+            <span id="viewLinkId"><%=currentNodeProvided?(currentNode.link).replace("http://",""):""%></span>
+        </div>
+      <%}else{%>
+        <div class="link-box" style="display:none;"> 
+            <span id="viewTitleId" ></span>
+            <span id="viewLinkId"></span>
+        </div>
+      <%}%> 
+      <div class="loader" style="display:none;"></div>
+    <p> <input type="text" id="linkId" value="<%=currentNodeProvided?currentNode.link:""%>" style="width:99%;" placeholder="URL" name="">
+    </p>
+    <p>
+      <input type="text" id="linkTitleId" value="<%=currentNodeProvided?currentNode.title:""%>" style="width:99%;" placeholder="Title" name="">
+    </p>
+    <p>
+      <textarea class="ckeditor" id="linkDescriptionId" cols="80" id="editor1" name="editor1" rows="10"><%=currentNodeProvided?currentNode.description:""%></textarea>
+    </p>
+    <p class=""><input name="" id="linkTagId" type="text" /></p>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $("#linkTagId").tokenInput("", {
+                theme: "custom",
+                allowFreeTagging: true,
+                preventDuplicates: true,
+                prePopulate: [
+                    <%if(currentNodeProvided && currentNode.hasNode("Tags") && currentNode.getNode("Tags").hasProperty("tags")){
+                        var tagValue = currentNode.getNode("Tags").getProperty("tags").getValues();
+                        for(var p=0;p<tagValue.length;p++){%>                             
+                            {id:"<%=tagValue[p].getString()%>",name:"<%=tagValue[p].getString()%>"},      
+                        <%}
+                    }%>   
+                ]
+            });
+        });
+    </script>
+    <div id="publish-menu" class="popup-menu" style="display: none;"> 
+        <ul class="blog-menu">
+        <% var submitValue="Publish";
+            var submitType="Post";%>
+          <%if(currentNodeProvided && (request.getParameter("blogType")+"") == 'Post' 
+                && currentNode.accessType=='public'){
+                submitValue = "Publish";
+                submitType = "Post";
+          %>
+                <li class="post-menu-item submitClass selected" onclick="changeName('Publish',this,'Post')">
+                    <a href="javascript:void(0)">
+                        <div id="name-publish">Publish Now</div>
+                    </a>
+                </li>
+          <%}else if(!currentNodeProvided){%>
+                <li class="post-menu-item submitClass selected" onclick="changeName('Publish',this,'Post')">
+                    <a href="javascript:void(0)">
+                        <div id="name-publish">Publish Now</div>
+                    </a>
+                </li>
+          <%}else{%>
+                <li class="post-menu-item submitClass" onclick="changeName('Publish',this,'Post')">
+                    <a href="javascript:void(0)">
+                        <div id="name-publish">Publish Now</div>
+                    </a>
+                </li>
+          <%}%>
+          <%if(currentNodeProvided && (request.getParameter("blogType")+"") == 'Post' && (!parameterMap.containsKey("reBlog"))){}
+            else{%>
+          <%if(currentNodeProvided && (request.getParameter("blogType")+"") == 'Queued'){
+            submitValue = "Schedule Post";
+            submitType = "Queued";
+          %>
+                <li class="post-menu-item submitClass selected" onclick="changeName('Schedule Post',this,'Queued')">
+                    <a href="javascript:void(0)">
+                        <div id="name-publish" class="publish-now">Publish On</div><br>
+                        <input type="text" name="queued" id="queuedTimeId" style="display:none;" class="publish-input"
+                            value="<%=(currentNodeProvided && currentNode.scheduledDate)?currentNode.scheduledDate:""%>"  />
+                    </a> 
+                  </li>
+          <%}else{%>
+                <li class="post-menu-item submitClass" onclick="changeName('Schedule Post',this,'Queued')">
+                    <a href="javascript:void(0)">
+                        <div id="name-publish" class="publish-now">Publish On</div><br>
+                        <input type="text" name="queued" id="queuedTimeId" style="display:none;" class="publish-input"
+                            value="<%=(currentNodeProvided && currentNode.scheduledDate)?currentNode.scheduledDate:""%>"  />
+                    </a> 
+                  </li>
+          <%}%>    
+          <%if(currentNodeProvided && (request.getParameter("blogType")+"") == 'Draft'){
+            submitValue = "Save Draft";
+            submitType = "Draft";
+          %>
+                <li class="post-menu-item submitClass selected" onclick="changeName('Save Draft',this,'Draft')">
+                    <a href="javascript:void(0)">
+                        <div id="name-publish">Save as Draft</div>
+                    </a>
+                 </li>
+          <%}else{%>
+            <li class="post-menu-item submitClass" onclick="changeName('Save Draft',this,'Draft')">
+                <a href="javascript:void(0)">
+                    <div id="name-publish">Save as Draft</div>
+                </a>
+              </li>
+          <%}%>
+          <%}%>
+          <%if(currentNodeProvided && (request.getParameter("blogType")+"") == 'Post' 
+                && currentNode.accessType=='private'){
+                submitValue = "Create Private Post";
+                submitType = "private";
+          %>
+                <li class="post-menu-item submitClass selected" onclick="changeName('Create Private Post',this,'private')">
+                    <a href="javascript:void(0)">
+                        <div id="name-publish">Private</div>
+                    </a>
+                  </li>
+          <%}else{%>
+                <li class="post-menu-item submitClass" onclick="changeName('Create Private Post',this,'private')">
+                    <a href="javascript:void(0)">
+                        <div id="name-publish">Private</div>
+                    </a>
+                  </li>
+          <%}%>
+          
+        </ul>
+      </div>
+    <input type="submit" id="submitButtonId" class="publish-btn" value="<%=submitValue%>" onclick="saveTextPost()" />
+    <input type="hidden" id="typeId" value="<%=submitType%>" />
+    <div class="arrow-btn" onclick="showDiv(this);"><a class="arrow-pop" href="javascript:void(0);"></a></div>
+    <p>
+        <%if(!currentNodeProvided){%>
+            <input name="Button" type="button" value="Close" id="closeButtonId" class="close-popup" onclick="closePop()">
+        <%}else{%>    
+            <input name="Button" type="button" value="Close" id="closeButtonId" class="close-popup" onclick="closeEditBlock(this)">
+        <%}%>    
+        <img src="<%=request.getContextPath()%>/apps/blogger/images/loading.gif" id="loadImageId" height="28"  style="display:none;float:right;"/>
+    </p>
+</div>
+
+    <input type="hidden" id="postId" value="<%=currentNodeProvided?currentNode.getName():"0"%>"  />
+    
+</body>
+</html>

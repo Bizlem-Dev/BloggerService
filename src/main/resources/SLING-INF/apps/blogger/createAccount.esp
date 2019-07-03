@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<head>
+<%load("include/header.esp");%>
+
+</head>
+
+<script type="text/javascript">
+	function callAjax()
+	{
+	   if((/^[a-zA-Z0-9- ]*$/.test($("#bloggerId").val()) == false) || (/\s/.test($("#bloggerId").val())==true)) {
+           alert("Contains Special Character or Space. Please Modify!");
+        }else{ 
+	       var data='bloggerId='+$("#bloggerId").val();
+    	   $.ajax({
+    	             type: 'POST',
+    	             url: '<%=request.getContextPath()%>/servlet/blogger/view.ajax',
+    	             
+    	             data: data,
+    	             dataType: 'html',
+    	             success: function(data){
+    			         if(data=='true')
+    			         {
+    			         	alert("Already exist");
+    			         }
+    			         else
+    			         {
+    			         	document.blogForm.submit();
+    			         }
+    	             }
+    	         });
+    	}   
+	}
+</script>
+
+
+  <body>
+
+<body style=" background:url(<%=request.getContextPath()%>/apps/blogger/images/login-bg.jpg) 100% repeat-x  #1a3856;">
+<div class="login-wrapper">
+<div class="login-form-wrap">
+<h1>blogger</h1>
+<div class="login-form">
+
+<form method="POST" action="<%=request.getContextPath()%>/servlet/blogger/view.addAccount" enctype="multipart/form-data" id="uploadImage" name="blogForm" >
+
+
+
+<span><input type="text" id="bloggerId" name="bloggerId" placeholder="Blogger ID" /></span>
+<!--span><input type="text" id="userId" name="userId"  placeholder="E-mail"/><span-->
+</div>
+
+<input type="button" value="sign up" onclick="callAjax();" />
+
+
+</div>
+
+</div>
+
+
+
+
+
+
+
+
+
+</form>
+</body>
+
+  </html>

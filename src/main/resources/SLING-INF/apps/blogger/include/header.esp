@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<head>
+<script src="<%=request.getContextPath()%>/wro/bloggerHeader.js"></script>
+<link href="<%=request.getContextPath()%>/apps/blogger/css/style.css" rel="stylesheet" type="text/css" />
+<link href="<%=request.getContextPath()%>/apps/blogger/css/button.css" rel="stylesheet" type="text/css" />
+<link href="<%=request.getContextPath()%>/apps/blogger/css/global.css" rel="stylesheet" type="text/css" />
+<script src="<%=request.getContextPath()%>/apps/blogger/js/jscripts/tiny_mce/tiny_mce.js" ></script>
+<!--
+<script src="<%=request.getContextPath()%>/apps/blogger/js/jquery.min.js"></script>
+<script src="<%=request.getContextPath()%>/apps/blogger/js/jquery-function.js"></script>
+<link href="<%=request.getContextPath()%>/apps/blogger/css/style.css" rel="stylesheet" type="text/css" />
+<link href="<%=request.getContextPath()%>/apps/blogger/css/button.css" rel="stylesheet" type="text/css" />
+<link href="<%=request.getContextPath()%>/apps/blogger/css/global.css" rel="stylesheet" type="text/css" />
+<script src="<%=request.getContextPath()%>/apps/blogger/js/audio.min.js"></script>
+<script src="<%=request.getContextPath()%>/apps/blogger/js/id3.js" type="text/javascript"></script>
+<script src="<%=request.getContextPath()%>/apps/blogger/js/jscripts/tiny_mce/tiny_mce.js" ></script>
+-->
+<script type="text/javascript">
+    function likePost(postPath,obj){
+          var data='postPath='+postPath;
+          $.ajax({
+             type: 'POST',
+             url: '<%=request.getContextPath()%>/servlet/blogger/view.likeBlog',                 
+             data: data,
+             success: function(data){
+               window.location.reload();  
+             }    
+         });            
+    }
+    
+    function deletePost(postPath,obj){
+        var data='postPath='+postPath;
+        $.ajax({
+             type: 'POST',
+             url: '<%=request.getContextPath()%>/servlet/blogger/view.deleteBlog', 
+             data: data,
+             success: function(data){
+                  $(obj).parent().parent().parent().parent().parent().parent().parent().parent().remove(); 
+             } 
+         });
+     }
+    function settings(obj){  
+        $(obj).next().slideToggle();
+     }
+
+    function editPost(postId,postType,blogId,type,obj){
+          $(".action-menu").hide();
+          $("#bg-mask").show();
+          $(obj).parent().parent().parent().parent().parent().parent().parent().addClass("popUpHide");
+          $(obj).parent().parent().parent().parent().parent().parent().hide();
+          
+          if(type=='text'){
+                $(obj).parent().parent().parent().parent().parent().parent().next(".view").load("<%=request.getContextPath()%>/servlet/blogger/posts.editText?postId="+postId+"&blogType="+postType+"&blogId="+blogId).css('display','inline-block');
+          }else if(type=='quote'){
+            $(obj).parent().parent().parent().parent().parent().parent().next(".view").load("<%=request.getContextPath()%>/servlet/blogger/posts.editQuote?postId="+postId+"&blogType="+postType+"&blogId="+blogId).css('display','inline-block');
+          }else if(type=='link'){
+            $(obj).parent().parent().parent().parent().parent().parent().next(".view").load("<%=request.getContextPath()%>/servlet/blogger/posts.editLink?postId="+postId+"&blogType="+postType+"&blogId="+blogId).css('display','inline-block');
+          }else  if(type=='video'){
+            $(obj).parent().parent().parent().parent().parent().parent().next(".view").load("<%=request.getContextPath()%>/servlet/blogger/posts.editVideo?postId="+postId+"&blogType="+postType+"&blogId="+blogId).css('display','inline-block'); 
+          }else if(type=='image'){
+            $(obj).parent().parent().parent().parent().parent().parent().next(".view").load("<%=request.getContextPath()%>/servlet/blogger/posts.editImage?postId="+postId+"&blogType="+postType+"&blogId="+blogId).css('display','inline-block');    
+          }else if(type=='audio'){
+            $(obj).parent().parent().parent().parent().parent().parent().next(".view").load("<%=request.getContextPath()%>/servlet/blogger/posts.editAudio?postId="+postId+"&blogType="+postType+"&blogId="+blogId).css('display','inline-block');    
+          }
+      }
+    
+    
+    function reBlogPost(postId,postType,blogId,type,obj){
+         $("#bg-mask").show();
+         $(obj).parent().parent().parent().parent().addClass("popUpHide");
+         $(obj).parent().parent().parent().hide();
+         if(type=='text'){
+             $(obj).parent().parent().parent().next(".view").load("<%=request.getContextPath()%>/servlet/blogger/posts.editText?postId="+postId+"&blogType="+postType+"&blogId="+blogId+"&reBlog=true").css('display','inline-block');
+         }else if(type=='quote'){
+            $(obj).parent().parent().parent().next(".view").load("<%=request.getContextPath()%>/servlet/blogger/posts.editQuote?postId="+postId+"&blogType="+postType+"&blogId="+blogId+"&reBlog=true").css('display','inline-block');
+         }else if(type=='link'){
+             $(obj).parent().parent().parent().next(".view").load("<%=request.getContextPath()%>/servlet/blogger/posts.editLink?postId="+postId+"&blogType="+postType+"&blogId="+blogId+"&reBlog=true").css('display','inline-block');
+         }else if(type=='video'){
+              $(obj).parent().parent().parent().next(".view").load("<%=request.getContextPath()%>/servlet/blogger/posts.editVideo?postId="+postId+"&blogType="+postType+"&blogId="+blogId+"&reBlog=true").css('display','inline-block');
+         }else if(type=='image'){
+              $(obj).parent().parent().parent().next(".view").load("<%=request.getContextPath()%>/servlet/blogger/posts.editImage?postId="+postId+"&blogType="+postType+"&blogId="+blogId+"&reBlog=true").css('display','inline-block');
+         }else if(type=='audio'){
+              $(obj).parent().parent().parent().next(".view").load("<%=request.getContextPath()%>/servlet/blogger/posts.editAudio?postId="+postId+"&blogType="+postType+"&blogId="+blogId+"&reBlog=true").css('display','inline-block');
+         }                
+    }
+</script>
+<script>
+$(function(){
+       $("#searchId").keyup(function( event ) {
+           if($(this).val().length>1){
+           $("#searchLoadId").show();
+           $("#searchBtnId").hide();
+            $(".search-menu").load("<%=request.getContextPath()%>/servlet/blogger/view.homeSearch?key="
+                    +$(this).val().trim(),function(){
+                        $("#searchBtnId").show();
+                        $("#searchLoadId").hide();
+                        $(".search-menu").show();
+                    });
+           }
+        }).keydown(function( event ) {
+            if ( event.which == 13 ) {
+                event.preventDefault();
+            }
+        });
+        
+        
+    });
+</script>
+<%
+function getTime(postDate){
+
+	var timeDiff;
+	df = new Packages.java.text.SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+	date = Packages.java.util.Calendar.getInstance();
+	date1 = df.parse(df.format(date.getTime()));
+	date2 = df.parse(postDate);
+	diff = Packages.java.lang.Math.floor(date1.getTime() - date2.getTime());
+	if (diff > 0) {
+		diffSeconds = Packages.java.lang.Math.floor(diff / 1000 % 60);
+		diffMinutes = Packages.java.lang.Math.floor(diff / (60 * 1000) % 60);
+		diffHours = Packages.java.lang.Math.floor(diff / (60 * 60 * 1000) % 24);
+		diffDays = Packages.java.lang.Math.floor(diff / (24 * 60 * 60 * 1000));
+		diffMonths = Packages.java.lang.Math.floor(diffDays / 30);
+		if(diffMonths>0)
+			return "Posted "+ diffMonths + " months ago";
+		else if(diffDays>0)
+			return "Posted "+ diffDays + " days ago";
+		else if(diffHours>0)
+			 return "Posted "+ diffHours + " hr ago";
+		 else if(diffMinutes>0)
+			 return "Posted "+ diffMinutes + " min ago";
+		 else
+			 return "Posted "+ diffSeconds + " sec ago";
+		} else {
+			return "";
+		}	
+}
+%>

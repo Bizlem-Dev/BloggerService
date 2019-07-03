@@ -1,0 +1,46 @@
+<%
+    var currentNodeProvided = ((typeof currentNode != "undefined") );
+%>
+    <h2>Followers</h2>
+    <ol class="follower-list">
+        <%
+            if(currentNode.hasNode("followers")){
+        %>
+
+
+        <%
+            if(currentNodeProvided ){
+        var nodes = currentNode.getNode("followers").getNodes();
+                 for(var i=0;i<nodes.length;i++) {
+                 var blogNode = nodes[i].getName();
+        %>
+        <li><a href="#" class="follower-pic"> <%
+     if(currentNode.hasNode("avatar")){
+ %> <img
+                src="<%=request.getContextPath()%><%=currentNode.getNode("avatar")%>"
+                width="50" height="50" /> <%
+     }
+                   else{
+ %> <img id="imageId"
+                src="<%=request.getContextPath()%>/apps/blogger/images/Woman-with-two-screens_LOW-RES.jpg"
+                width="70" height="70" /> <%
+     }
+ %>
+        </a>
+            <div class="follower-info">
+                <a href="#"><%=blogNode%></a>
+            </div></li>
+
+        <%
+            }}
+        %>
+
+        <%
+            }  else{
+        %>
+        <li>No Followers Exist</li>
+
+        <%
+            }
+        %>
+    </ol>

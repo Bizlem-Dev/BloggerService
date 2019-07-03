@@ -1,0 +1,418 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Untitled Document</title>
+<script src="<%=request.getContextPath()%>/apps/blogger/js/jquery.js"></script>
+<script src="<%=request.getContextPath()%>/apps/blogger/js/jquery-function.js"></script>
+<script src="<%=request.getContextPath()%>/apps/blogger/js/id3.js" type="text/javascript"></script>
+<link href="<%=request.getContextPath()%>/apps/blogger/css/style.css" rel="stylesheet" type="text/css" />
+<link href="<%=request.getContextPath()%>/apps/blogger/css/button.css" rel="stylesheet" type="text/css" />
+<link href="<%=request.getContextPath()%>/apps/blogger/css/font_style.css" rel="stylesheet" type="text/css" />
+<script>
+    function closePop(){
+        $("#bg-mask").hide();
+        $(".main-menu").show();
+        $(".popup-container").slideUp();
+        $(".post").removeClass("popUpHide");
+    }
+    
+    function changeName(value,obj,result){
+        $(obj).parent().children(".submitClass").removeClass("selected");
+        $(obj).addClass("selected");
+        $(obj).parent().parent().next("#submitButtonId").val(value);
+        $(obj).parent().parent().next().next("#typeId").val(result);
+        if(result=='Queued'){
+          $(obj).children().children("#queuedTimeId").show();
+        }else{
+          $(obj).children().children("#queuedTimeId").hide();
+          $(obj).parent().parent().hide();
+        }       
+    }
+    
+    function showDiv(obj){
+        $(obj).prev().prev().prev("#publish-menu").toggle();
+    }
+    
+    function openBlogId(obj){
+        $(obj).next("#blog-name-menu").slideDown();
+    }
+    
+    function changeBlog(value,obj){
+        $(obj).parent().parent().parent().children(".post-menu-item").removeClass("selected");
+        $(obj).parent().parent().addClass("selected");
+        $(obj).parent().parent().parent().parent().prev(".blog-name-change").text(value);
+        $(obj).parent().parent().parent().parent().slideUp();
+        $(obj).parent().parent().parent().parent().parent().parent().next("#blogDId").val(value);
+    }
+    
+    function editText(postId,postType,blogId){
+    $(".popUp-div").load("<%=request.getContextPath()%>/servlet/blogger/posts.editText?postId="+postId+"&blogType="+postType+"&blogId="+blogId).slideDown();
+        
+    }
+    
+    function editQuote(postId,postType,blogId){
+    $(".popUp-div").load("<%=request.getContextPath()%>/servlet/blogger/posts.editQuote?postId="+postId+"&blogType="+postType+"&blogId="+blogId).slideDown();
+        
+    }
+    
+    function editLink(postId,postType,blogId){
+    $(".popUp-div").load("<%=request.getContextPath()%>/servlet/blogger/posts.editLink?postId="+postId+"&blogType="+postType+"&blogId="+blogId).slideDown();
+        
+    }
+    
+    function editVideo(postId,postType,blogId){
+        $(".popUp-div").load("<%=request.getContextPath()%>/servlet/blogger/posts.editVideo?postId="+postId+"&blogType="+postType+"&blogId="+blogId).slideDown();    
+    }
+    function editImage(postId,postType,blogId){
+        $(".popUp-div").load("<%=request.getContextPath()%>/servlet/blogger/posts.editImage?postId="+postId+"&blogType="+postType+"&blogId="+blogId).slideDown();    
+    }
+    
+    function reBlogText(postId,postType,blogId){
+        $(".popUp-div").load("<%=request.getContextPath()%>/servlet/blogger/posts.editText?postId="+postId+"&blogType="+postType+"&blogId="+blogId+"&reBlog=true").slideDown();    
+    }
+    
+    function reBlogQuote(postId,postType,blogId){
+        $(".popUp-div").load("<%=request.getContextPath()%>/servlet/blogger/posts.editQuote?postId="+postId+"&blogType="+postType+"&blogId="+blogId+"&reBlog=true").slideDown();    
+    }
+    
+    function reBlogLink(postId,postType,blogId){
+        $(".popUp-div").load("<%=request.getContextPath()%>/servlet/blogger/posts.editLink?postId="+postId+"&blogType="+postType+"&blogId="+blogId+"&reBlog=true").slideDown();    
+    }
+    
+    function reBlogVideo(postId,postType,blogId){
+        $(".popUp-div").load("<%=request.getContextPath()%>/servlet/blogger/posts.editVideo?postId="+postId+"&blogType="+postType+"&blogId="+blogId+"&reBlog=true").slideDown();    
+    }
+    
+    function reBlogImage(postId,postType,blogId){
+        $(".popUp-div").load("<%=request.getContextPath()%>/servlet/blogger/posts.editImage?postId="+postId+"&blogType="+postType+"&blogId="+blogId+"&reBlog=true").slideDown();    
+    }
+</script>
+</head>
+<body>
+<a href="#" onclick="editText('Post14','Post','randomBlog')" style="color:white;">EDIT TEXT</a>
+<a href="#" onclick="editQuote('Post14','Post','randomBlog')" style="color:white;">EDIT Quote</a>
+<a href="#" onclick="editLink('Post17','Post','pranavarya')" style="color:white;">EDIT Link</a>
+<a href="#" onclick="editVideo('Post3','Post','actorBlog')" style="color:white;">EDIT Video</a>
+<a href="#" onclick="editImage('Post5','Post','randomBlog')" style="color:white;">EDIT Image</a>
+<a href="#" onclick="reBlogText('Post0','Post','pranavarya')" style="color:white;">Reblog Text</a>
+<a href="#" onclick="reBlogQuote('Post15','Post','pranavarya')" style="color:white;">Reblog Quote</a>
+<a href="#" onclick="reBlogLink('Post7','Post','pranavarya')" style="color:white;">Reblog Link</a>
+<a href="#" onclick="reBlogVideo('Post9','Post','pranavarya')" style="color:white;">Reblog Video</a>
+<a href="#" onclick="reBlogImage('Post6','Post','pranavarya')" style="color:white;">Reblog Image</a>
+
+
+<div id="bg-mask"></div>
+<div class="main-container">
+  <div class="header-container">
+    <div class="logo"></div>
+    <div class="tab-container">
+      <ul>
+        <li><a href="#"><span class="icon home"></span></a></li>
+        <li><a href="#"><span class="icon logout"></span></a></li>
+        <li class="search"><span class="icon search"></span>
+          <input name="" type="text" />
+          <div class="search-menu"> <span class="nipple"></span>
+            <div class="section-header">Tags</div>
+            
+            <div class="section-header">Tags</div>
+            <ul class="blog-menu">
+              <li class="post-menu-item"><a href="#">
+                <div>Blog Name</div>
+                <span class="blog-image"><img src="<%=request.getContextPath()%>/apps/blogger/images/picture_user.jpg"></span></a>
+                <div class="blog-url"><a href="#">companyblog.blogpost.com</a></div>
+              </li>
+              <li class="post-menu-item"><a href="#">
+                <div>Blog Name</div>
+                <span class="blog-image"><img src="<%=request.getContextPath()%>/apps/blogger/images/picture_user.jpg"></span></a>
+                <div class="blog-url"><a href="#">companyblog.blogpost.com</a></div>
+              </li>
+              <li class="post-menu-item"><a href="#">
+                <div>Blog Name</div>
+                <span class="blog-image"><img src="<%=request.getContextPath()%>/apps/blogger/images/picture_user.jpg"></span></a>
+                <div class="blog-url"><a href="#">companyblog.blogpost.com</a></div>
+              </li>
+              <li class="post-menu-item"><a href="#">
+                <div>Blog Name</div>
+                <span class="blog-image"><img src="<%=request.getContextPath()%>/apps/blogger/images/picture_user.jpg"></span></a>
+                <div class="blog-url"><a href="#">companyblog.blogpost.com</a></div>
+              </li>
+              <li class="post-menu-item"><a href="#">
+                <div>+ Create New Blog</div>
+                </a> </li>
+            </ul>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <div class="body-container">
+    <div class="section-right">
+      <ul class="post-menu">
+        <li class="post-menu-item"><a href="#">
+          <div>Blog Name</div>
+          </a><span class="sub-menu-image"></span>
+          <div class="blog-url"><a href="#">companyblog.blogpost.com</a></div>
+        </li>
+        <li class="pop-blog-menu">
+          <ul class="blog-menu">
+            <li class="post-menu-item"><a href="#">
+              <div>Blog Name</div>
+              <span class="blog-image"><img src="<%=request.getContextPath()%>/apps/blogger/images/picture_user.jpg" /></span></a>
+              <div class="blog-url"><a href="#">companyblog.blogpost.com</a></div>
+            </li>
+            <li class="post-menu-item"><a href="#">
+              <div>Blog Name</div>
+              <span class="blog-image"><img src="<%=request.getContextPath()%>/apps/blogger/images/picture_user.jpg" /></span></a>
+              <div class="blog-url"><a href="#">companyblog.blogpost.com</a></div>
+            </li>
+            <li class="post-menu-item"><a href="#">
+              <div>Blog Name</div>
+              <span class="blog-image"><img src="<%=request.getContextPath()%>/apps/blogger/images/picture_user.jpg" /></span></a>
+              <div class="blog-url"><a href="#">companyblog.blogpost.com</a></div>
+            </li>
+            <li class="post-menu-item"><a href="#">
+              <div>Blog Name</div>
+              <span class="blog-image"><img src="<%=request.getContextPath()%>/apps/blogger/images/picture_user.jpg" /></span></a>
+              <div class="blog-url"><a href="#">companyblog.blogpost.com</a></div>
+            </li>
+            <li class="post-menu-item"><a href="#">
+              <div>+ Create New Blog</div>
+              </a> </li>
+          </ul>
+        </li>
+        <li class="post-menu-item"><a href="#">
+          <div class="post-menu-item-name"><span class="icon post"></span>Posts</div>
+          <span class="count">5</span></a></li>
+        <li class="post-menu-item"><a href="#">
+          <div class="post-menu-item-name"><span class="icon followers"></span>Followers</div>
+          <span class="count">5</span></a></li>
+        <li class="post-menu-item"><a href="#">
+          <div class="post-menu-item-name"><span class="icon activity"></span>Activity</div>
+          <span class="count">5</span></a></li>
+        <li class="post-menu-item"><a href="#">
+          <div class="post-menu-item-name"><span class="icon draft"></span>Draft</div>
+          <span class="count">5</span></a></li>
+        <li class="post-menu-item"><a href="#">
+          <div class="post-menu-item-name"><span class="icon queue"></span>Queue</div>
+          <span class="count">5</span></a></li>
+      </ul>
+      <ul class="post-menu">
+        <li class="post-menu-item"><a href="#">
+          <div class="post-menu-item-name"><span class="icon liked"></span>Liked 5 posts</div>
+          </a></li>
+        <li class="post-menu-item"><a href="#">
+          <div class="post-menu-item-name"><span class="icon following"></span>Following 15 blogs</div>
+          </a></li>
+        <li class="post-menu-item"><a href="#">
+          <div class="post-menu-item-name"><span class="icon find"></span>Find blogs</div>
+          </a></li>
+      </ul>
+    </div>
+    <div class="section-left">
+      <ol class="post-list">
+        <li>
+          <div class="post">
+            <div class="post-avtar"><a href="#" class="avtar-pic"><img src="<%=request.getContextPath()%>/apps/blogger/images/picture_user.jpg" /></a><a href="#" class="avtar-link">+ Picture</a></div>
+            <div class="post-connector-arrow"></div>
+            <div class="post-wrapper">
+              <nav class="main-menu"> <a href="#"><span class="icon text"></span>Text</a> <a href="#"><span class="icon photo"></span>Photo</a> <a href="#"><span class="icon quote"></span>Quote</a> <a href="#"><span class="icon link"></span>Link</a> <a href="#" style="display:none;"><span class="icon chat"></span>Chat</a> <a href="#"><span class="icon audio"></span>Audio</a> <a href="#"><span class="icon video"></span>Video</a> </nav>
+              <div class="popUp-div"></div>
+              
+            </div>
+          </div>
+        </li>
+        <li>
+          <div class="post">
+            <div class="post-avtar"><a href="#" class="avtar-pic"><img src="<%=request.getContextPath()%>/apps/blogger/images/picture_user.jpg" /></a><a href="#" class="avtar-link">+ Picture</a></div>
+            <div class="post-connector-arrow"></div>
+            <div class="post-wrapper">
+              <div class="post-header"><span class="header-info">Header Info</span> <span class="post-source">Source:<a href="#">linktosource.com</a></span></div>
+              <div class="post-content">
+                <p> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris eget   elit at sapien ultricies hendrerit non et urna. Pellentesque habitant   morbi tristique senectus et netus et malesuada fames ac turpis egestas.   Vestibulum pellentesque eros vel vehicula euismod. Mauris mattis ante   non magna molestie tempus quis sed libero. Nunc fermentum viverra sem, a   gravida metus tempus ultrices. Duis egestas at nulla vel vulputate.   Etiam sit amet leo feugiat, fringilla sapien vel, porta nunc. Morbi   tristique odio non eleifend feugiat. Vestibulum ante ipsum primis in   faucibus orci luctus et ultrices posuere cubilia Curae; Curabitur ac   mauris a odio sagittis ullamcorper. Class aptent taciti sociosqu ad   litora torquent per conubia nostra, per inceptos himenaeos. </p>
+                <p> Etiam augue metus, pellentesque vitae risus sit amet, fermentum   dignissim velit. Nullam sodales metus non odio imperdiet blandit. Ut   accumsan arcu sapien, in ultrices lectus venenatis eget. Cum sociis   natoque penatibus et magnis dis parturient montes, nascetur ridiculus   mus. Cras mattis id risus a tristique. Donec vehicula lorem nec mauris   euismod egestas. Maecenas aliquet odio egestas, hendrerit metus quis,   eleifend lorem. Class aptent taciti sociosqu ad litora torquent per   conubia nostra, per inceptos himenaeos. Pellentesque suscipit felis at   magna faucibus elementum quis bibendum arcu. Nam sed malesuada lacus.   Donec sagittis sapien quis elit imperdiet mattis. In tristique, ipsum   nec suscipit tincidunt, sapien lorem adipiscing odio, eu lobortis sapien   massa quis sem. </p>
+                <div class="post-tags"><a href="#">#Tag 1</a> <a href="#">#Tag 2</a> <a href="#">#Tag 3</a> <a href="#">#Tag 4</a> <a href="#">#Tag 5</a></div>
+              </div>
+              <div class="post-footer">
+                <div class="note-count"><span class="note-text">2 notes</span></div>
+                <div class="post-action"> <a href="#" class="icon reblog"></a><a href="javascript:void(0)" class="icon more-action"></a>
+                  <div class=" action-menu"> <span class="nipple"></span>
+                    <ul class="post-menu">
+                      <li class="post-menu-item"><a href="#">
+                        <div class="post-menu-item-name"><span class="icon post"></span>Posts</div>
+                        </a></li>
+                      <li class="post-menu-item"><a href="#">
+                        <div class="post-menu-item-name"><span class="icon followers"></span>Followers</div>
+                        </a></li>
+                      <li class="post-menu-item"><a href="#">
+                        <div class="post-menu-item-name"><span class="icon activity"></span>Activity</div>
+                        </a></li>
+                      <li class="post-menu-item"><a href="#">
+                        <div class="post-menu-item-name"><span class="icon draft"></span>Draft</div>
+                        </a></li>
+                      <li class="post-menu-item"><a href="#">
+                        <div class="post-menu-item-name"><span class="icon queue"></span>Queue</div>
+                        </a></li>
+                      <li class="post-menu-item"><a href="#">
+                        <div class="post-menu-item-name"><span class="icon edit"></span>Edit</div>
+                        </a></li>
+                      <li class="post-menu-item"><a href="#">
+                        <div class="post-menu-item-name"><span class="icon delete"></span>Delete</div>
+                        </a></li>
+                      <li class="post-menu-item"><a href="#">
+                        <div class="post-menu-item-name"><span class="icon reblog"></span>Reblog</div>
+                        </a></li>
+                      <li class="post-menu-item"><a href="#">
+                        <div class="post-menu-item-name"><span class="icon liked"></span>Like</div>
+                        </a></li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </li>
+        <li>
+          <div class="post">
+            <div class="post-avtar"><a href="#" class="avtar-pic"><img src="<%=request.getContextPath()%>/apps/blogger/images/picture_user.jpg" /></a><a href="#" class="avtar-link">+ Picture</a></div>
+            <div class="post-connector-arrow"></div>
+            <div class="post-wrapper">
+              <div class="post-header"><span class="header-info">Header Info</span> <span class="post-source">Source:<a href="#">linktosource.com</a></span></div>
+              <div class="post-content">
+                <p>
+                <div class="quotes">
+                  <div class="title"><span class="quote-mark">&ldquo;</span><span class="quote-text">Quote text will go here</span><span class="quote-mark">&rdquo;</span></div>
+                  <div class="description">---- Quote description will go here</div>
+                  </p>
+                </div>
+                <div class="post-tags"><a href="#">#Tag 1</a> <a href="#">#Tag 2</a> <a href="#">#Tag 3</a> <a href="#">#Tag 4</a> <a href="#">#Tag 5</a></div>
+              </div>
+              <div class="post-footer">
+                <div class="note-count"><span class="note-text">2 notes</span></div>
+                <div class="post-action"> <a href="#" class="icon reblog"></a> </div>
+              </div>
+            </div>
+          </div>
+        </li>
+        <li>
+          <div class="post" style="display:none;">
+            <div class="post-avtar"><a href="#" class="avtar-pic"><img src="<%=request.getContextPath()%>/apps/blogger/images/picture_user.jpg" /></a><a href="#" class="avtar-link">+ Picture</a></div>
+            <div class="post-connector-arrow"></div>
+            <div class="post-wrapper">
+              <div class="post-header"><span class="header-info">Header Info</span> <span class="post-source">Source:<a href="#">linktosource.com</a></span></div>
+              <div class="post-content">
+                <p>
+                <div class="quotes">
+                  <div class="title"><span class="quote-text">Chat text will go here</span></div>
+                  <div class="description">Chat description will go here</div>
+                  </p>
+                </div>
+                <div class="post-tags"><a href="#">#Tag 1</a> <a href="#">#Tag 2</a> <a href="#">#Tag 3</a> <a href="#">#Tag 4</a> <a href="#">#Tag 5</a></div>
+              </div>
+              <div class="post-footer">
+                <div class="note-count"><span class="note-text">2 notes</span></div>
+                <div class="post-action"> <a href="#" class="icon reblog"></a> </div>
+              </div>
+            </div>
+          </div>
+        </li>
+        <li>
+          <div class="post">
+            <div class="post-avtar"><a href="#" class="avtar-pic"><img src="<%=request.getContextPath()%>/apps/blogger/images/picture_user.jpg" /></a><a href="#" class="avtar-link">+ Picture</a></div>
+            <div class="post-connector-arrow"></div>
+            <div class="post-wrapper">
+              <div class="post-header"><span class="header-info">Header Info</span></div>
+              <div class="post-content">
+                <p> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris eget   elit at sapien ultricies hendrerit non et urna. Pellentesque habitant   morbi tristique senectus et netus et malesuada fames ac turpis egestas.</p>
+                <p><a href="#"><img src="<%=request.getContextPath()%>/apps/blogger/images/picture_user.jpg" class="inline-image" /></a></p>
+              </div>
+              <div class="post-footer">
+                <div class="note-count"><span class="note-text">2 notes</span></div>
+                <div class="post-action">Icon</div>
+              </div>
+            </div>
+          </div>
+        </li>
+        <li>
+          <div class="post">
+            <div class="post-avtar"><a href="#" class="avtar-pic"><img src="<%=request.getContextPath()%>/apps/blogger/images/picture_user.jpg" /></a><a href="#" class="avtar-link">+ Picture</a></div>
+            <div class="post-connector-arrow"></div>
+            <div class="post-wrapper">
+              <div class="post-header"><span class="header-info">Header Info</span></div>
+              <div class="post-content">
+                <div class="image-post"><a href="#"><img src="<%=request.getContextPath()%>/apps/blogger/images/picture_user.jpg" /></a> <a href="#"><img src="<%=request.getContextPath()%>/apps/blogger/images/picture_user.jpg" /></a> <a href="#"><img src="<%=request.getContextPath()%>/apps/blogger/images/picture_user.jpg" /></a> <a href="#"><img src="<%=request.getContextPath()%>/apps/blogger/images/picture_user.jpg" /></a> <a href="#"><img src="<%=request.getContextPath()%>/apps/blogger/images/picture_user.jpg" /></a> <a href="#"><img src="<%=request.getContextPath()%>/apps/blogger/images/picture_user.jpg" /></a></div>
+              </div>
+              <div class="post-footer">
+                <div class="note-count"><span class="note-text">2 notes</span></div>
+                <div class="post-action">Icon</div>
+              </div>
+            </div>
+          </div>
+        </li>
+        
+        <li>
+          <div class="post">
+            <div class="post-avtar"><a href="#" class="avtar-pic"><img src="<%=request.getContextPath()%>/apps/blogger/images/picture_user.jpg" /></a><a href="#" class="avtar-link">+ Picture</a></div>
+            <div class="post-connector-arrow"></div>
+            <div class="post-wrapper">
+              <div class="post-header"><span class="header-info">Header Info</span> <span class="post-source">Source:<a href="#">linktosource.com</a></span></div>
+              <div class="post-content">
+              <a href="#">
+                <div class="link-box"> 
+    <span>Facebook <img  src="images/link-arrow.png" alt="" /></span>
+    <span>facebook.com</span>
+    
+    </div>
+    </a>
+                <p>
+                
+                
+                
+                <div class="quotes">
+                  <!--<div class="title"><span class="quote-text">Chat text will go here</span></div>-->
+                  <div class="description">Link description will go here </div>
+                  </p>
+                </div>
+                <div class="post-tags"><a href="#">#Tag 1</a> <a href="#">#Tag 2</a> <a href="#">#Tag 3</a> <a href="#">#Tag 4</a> <a href="#">#Tag 5</a></div>
+              </div>
+              <div class="post-footer">
+                <div class="note-count"><span class="note-text">2 notes</span></div>
+                <div class="post-action"> <a href="#" class="icon reblog"></a> </div>
+              </div>
+            </div>
+          </div>
+        </li>
+        <li>
+          <div class="post">
+            <div class="post-avtar"><a href="#" class="avtar-pic"><img src="<%=request.getContextPath()%>/apps/blogger/images/picture_user.jpg" /></a><a href="#" class="avtar-link">+ Picture</a></div>
+            <div class="post-connector-arrow"></div>
+            <div class="post-wrapper">
+              <div class="post-header"><span class="header-info">Header Info</span> <span class="post-source">Source:<a href="#">linktosource.com</a></span></div>
+              <div class="post-content">
+              <a href="#"><div class="video-upload-box"><span style="margin: 8.5em 20em;"></span> <div class="close-video"></div><img src="#" alt="" /> </div></a>
+                <p>
+                
+                
+                
+                <div class="quotes">
+                  <!--<div class="title"><span class="quote-text">Chat text will go here</span></div>-->
+                  <div class="description">Video description will go here </div>
+                  </p>
+                </div>
+                <div class="post-tags"><a href="#">#Tag 1</a> <a href="#">#Tag 2</a> <a href="#">#Tag 3</a> <a href="#">#Tag 4</a> <a href="#">#Tag 5</a></div>
+              </div>
+              <div class="post-footer">
+                <div class="note-count"><span class="note-text">2 notes</span></div>
+                <div class="post-action"> <a href="#" class="icon reblog"></a> </div>
+              </div>
+            </div>
+          </div>
+        </li>
+        
+      </ol>
+    </div>
+  </div>
+  <div class="footer-container"></div>
+</div>
+</body>
+</html>

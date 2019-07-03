@@ -1,0 +1,192 @@
+<%load("include/header.esp");%>
+<script>var _gaq=[['_setAccount','UA-20257902-1'],['_trackPageview']];(function(d,t){ var g=d.createElement(t),s=d.getElementsByTagName(t)[0]; g.async=1;g.src='//www.google-analytics.com/ga.js';s.parentNode.insertBefore(g,s)}(document,'script'))</script>
+
+<script>
+      audiojs.events.ready(function() {
+        audiojs.createAll();
+      });
+    </script>
+    
+    <script type="text/javascript">
+    function showVideo(obj)
+    {
+        $(obj).hide();
+        $(obj).next().hide();
+        $(obj).next('div').next('div').html($(obj).parent().parent().prev().val());
+    }
+    </script>
+</head>
+<body>
+ <%var currentNodeProvided = ((typeof currentNode != "undefined") );%>
+ 
+<div class="main-container my-view-blog">
+  <div class="header-container my-view-header">
+    <div class="logo"></div>
+    <div class="tab-container">
+      <ul>
+         <li><a href="<%=request.getContextPath()%>/servlet/blogger/view.home"><span class="icon home"></span></a></li>
+         <li><a href="<%=request.getContextPath()%>/servlet/blogger/view.edit?param=<%=currentNode.getName()%>"><span class="icon setting"></span></a></li>
+      </ul>
+    </div>
+  </div>
+  
+  <div class="body-container my-view-body">
+    <h1><%=request.getParameter("param")%></h1>
+       <% if(currentNodeProvided ){
+                    if(currentNode.hasNode("Post"))
+                    {
+             var nodes = currentNode.getNode("Post").getNodes();
+             for(var i=nodes.length-1;i>=0;i--) {
+             var blogNode = nodes[i];
+             var postType=blogNode.getProperty("postType");
+             var avatarNode;
+             if(blogNode.getParent().getParent().hasNode("avatar"))
+             {
+             avatarNode=blogNode.getParent().getParent().getNode("avatar");
+             }
+             else
+             {   avatarNode="/apps/blogger/images/picture_user.jpg";
+             }
+             %>
+    <div class="post-wrapper">
+      <!--<div class="post-header"><span class="header-info">Header Info</span></div>-->
+      <div class="post-content my-view-content">
+      
+                                <%if(postType=='text'){%>
+				                   <div class="quotes">
+					                  <div class="title"><span class="quote-text my-view-quote"><%=blogNode.getProperty("title")%></span></div>
+                                    
+                                    <%}else if(postType=='quote'){%>
+
+							         
+							       <div class="quotes">
+							          <div class="title"><span class="quote-mark my-view-quote">&quot;</span><span class="quote-text my-view-quote"><%=blogNode.getProperty("title")%></span><span class="quote-mark my-view-quote">&quot;</span></div>
+
+                                   
+                                    <%}else if(postType=='video'){%>
+
+                                    <input type="hidden" id="video" value="<%=blogNode.getProperty("videoIframe")%>" /> <a
+                                        href="javascript:void(0);">
+                                      <div class="video-upload-box my-view-video">
+                                            
+                                                <%if((blogNode.videoLinkFlag+"")=='false'){%>
+                                                <video width="587" height="300" controls>
+                                                    <source
+                                                        src="<%=request.getContextPath()+blogNode.getNode("Video").getNodes()[0].getPath()%>"
+                                                        type="video/webm">
+                                                                Your browser does not support the video tag.
+                                                 </video>
+                                                <%}else{%>
+                                                    <span style="margin: 104px 256px;" id="button"
+                                                    onclick="showVideo(this);"></span>
+                                                    <div id="image">
+                                                        <%=blogNode.videoThumbnail%>
+                                                    </div>
+                                                    <div></div>
+                                                <%}%>
+                                            
+                                          
+                                        </div>
+                                    </a>
+
+                                 <p> </p>
+
+                                    <%}else if(postType=='link'){%>
+                                     <div class="link-box my-view-linkbox"> <span><%=blogNode.getProperty("title")%><img
+                                                src="<%=request.getContextPath()%>/apps/blogger/images/link-arrow.png"
+                                                alt="" /></span> <span><%=blogNode.getProperty("link")%></span> </div>
+                                        </a>
+                                     <p> </p>
+                                   
+                                   <%}else if(postType=='audio'){
+                                        
+                                         var audioLinkFlag=blogNode.getProperty("audioLinkFlag").getString();
+                                        %>
+                                      
+                                         <div class="audio-player-wrap">
+										<div class="audip-player-content clearfix">
+										<div class="album-image">
+										<% if(blogNode.coverPage!=""){%>
+										<img src="<%=blogNode.coverPage%>" alt=""/>
+										<% } %>
+										</div>
+										<div class="album-text">
+										<span><%=blogNode.audioAlbum?blogNode.audioAlbum:""%></span>
+										<span><i><%=blogNode.audioTrack?blogNode.audioTrack:""%></i></span>
+										<span><i>Artist name</i></span>
+
+										</div>
+										
+										</div>
+										<!--<div class="ecolizer-wrap"><img src="<%=request.getContextPath()%>/apps/blogger/images/equalizer.gif" alt=""/></div>-->
+                                        <% 
+                                        
+                                        if(audioLinkFlag=='true'){
+                                     
+                                        %>
+                                         <audio src="<%=blogNode.audioLink?blogNode.audioLink:""%>" preload="auto"></audio>
+                                      
+                                       <%} else {
+                                       var audioNode=blogNode.getNode("Audio").getNodes();
+                                       
+                                       %>
+                                   
+                                      <audio src="<%=request.getContextPath()%><%=audioNode[0]%>" preload="auto"></audio>
+                                       
+                                       <%}%> 
+                                   
+                    
+                                        
+                                       
+                               
+                                        </div>
+                                   
+                                    <%}else if(postType=='image'){%>
+                                       <div class="image-post">
+                                            <% 
+                                            if(blogNode.hasNode("Image"))
+                                            {
+                                            var Image=blogNode.getNode("Image");
+                                            if(Image.hasNodes())
+                                            {
+                                            var imageNode=Image.getNodes();
+                                             for(var k=0;k<imageNode.length;k++) {
+                                              var image= imageNode[k];
+                                              %><a class="fullView"
+                                                href="javascript:void(0);"> <img
+                                                src="<%=request.getContextPath()%><%=image%>/x320" />
+                                            </a>
+                                            <%}%>
+                                            
+                                        </div>
+                                       
+                                        <%}}}%>
+      
+   
+        <div class="quotes">
+        
+          <div class="description"><%=blogNode.getProperty("description")%></div>
+          <p></p>
+        </div>
+        <div class="post-tags">
+            <%if(blogNode.hasNode("Tags") && blogNode.getNode("Tags").hasProperty("tags")){
+                        for(var p=0;p<blogNode.getNode("Tags").getProperty("tags").getValues().length;p++){%>
+                            # <a href="javascript:void(0);"><%=blogNode.getNode("Tags").getProperty("tags").getValues()[p].getString()%></a>     
+                        <%}
+                    }%>
+            </div>
+      </div>
+      <div class="post-footer my-view-postfooter clearfix">
+        <div class="note-count"><span class="note-text"><%=blogNode.postTimeStamp?blogNode.postTimeStamp:""%></span></div>
+       
+    
+   </div></div>
+    
+   <%}}}%> 
+ 
+  </div>
+  
+  <div class="footer-container"></div>
+</div>
+</body>
+</html>

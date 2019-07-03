@@ -1,0 +1,48 @@
+<span class="nipple serach-arrow"></span>
+<div class="section-header">Tags</div>
+    <ul class="blog-menu">
+        <li class="post-menu-item search-blog-image"><a href="<%=request.getContextPath()%>/servlet/blogger/view.tagPosts?tagKey=<%=request.getParameter("key")%>">
+           <div style="display:block;"> 
+                #<%=request.getParameter("key")%>
+                <span class=""></span>          
+           </div></a>
+           
+        </li>
+        <%  var tagList = tagKey;
+            for(var i=0;i<tagList.size() && i<5;i++){%>
+                <li class="post-menu-item">
+                   <a href="<%=request.getContextPath()%>/servlet/blogger/view.tagPosts?tagKey=<%=tagList.get(i)%>">
+                        <div> #<%=tagList.get(i)%></div>
+                   </a>
+                </li>
+        <%}%>
+    </ul>    
+</div>
+<div class="section-header">Blogs</div>
+    <ul class="blog-menu blogs">
+          <%  var blogList = blogKey;
+            for(var k=0;k<blogList.size();k++){
+            var blogId = blogList.get(k);
+            %>
+                <li class="post-menu-item">
+                   <a href="<%=request.getContextPath()%>/servlet/blogger/view.blogView?param=<%=blogId.get("blogId")%>">
+                       <div style="display:block;">
+                            <%=blogId.get("title")%>
+                            <span class="blog-image" style="display:inline;float:right;">
+                                <img src="<%=request.getContextPath()+blogId.get("picture")%>" />
+                            </span>
+                       </div>      
+                   </a>
+                   <div class="blog-url"><a href="javascript:void(0)"><%=blogId.get("bloggerId")%></a></div>
+                </li>
+        <%}%>
+        <li class="post-menu-item search-blog-image">
+            <a href="<%=request.getContextPath()%>/servlet/blogger/view.blogSearch?key=<%=request.getParameter("key")%>">
+                <div style="display:block;">
+                    More Blogs with "<%=request.getParameter("key")%>"
+                    <span class=""></span>
+                </div>
+            </a>
+        </li>
+    </ul>    
+</div>

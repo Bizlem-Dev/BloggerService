@@ -1,0 +1,605 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" style="height:100%">
+ <%var currentNodeProvided = ((typeof currentNode != "undefined") );%>
+<head>
+<script src="<%=request.getContextPath()%>/wro/bloggerView.js"></script>
+<%/*
+<script src="<%=request.getContextPath()%>/apps/blogger/js/jquery-latest.js"></script>
+<script src="<%=request.getContextPath()%>/apps/blogger/js/jquery.sticky.js"></script>
+<script src="<%=request.getContextPath()%>/apps/blogger/js/scroller.js"></script>
+<script src="<%=request.getContextPath()%>/apps/blogger/js/commonBlogView.js"></script>
+<script src="<%=request.getContextPath()%>/apps/blogger/js/tagCloud.js"></script>
+*/%>
+<link href="<%=request.getContextPath()%>/apps/blogger/css/scroll.css" rel="stylesheet" type="text/css" />
+ <% if(currentNode.hasProperty("themeCss")) {%>
+<link href="<%=request.getContextPath()%>/apps/blogger/css/<%=currentNode.getProperty("themeCss")%>" id="themeId" rel="stylesheet" type="text/css" />
+<%} else {%>
+<link href="<%=request.getContextPath()%>/apps/blogger/css/blogView2.css" id="themeId" rel="stylesheet" type="text/css" />
+<%}%>
+
+
+ <script>
+
+  $(window).load(function() {
+    	        try {
+    	  
+    	     $('#tags').show();
+    	         callRandomBlog();
+    	          TagCanvas.Start('myCanvas','tags',{
+    	            textColour: '#fff',
+    				fontSize:'80px',
+    				outlineColour: '#fff',
+    	            reverse: true,
+    	            depth: 0.8,
+    	            maxSpeed: 0.05
+    	          });
+    	      
+    	          
+    	        } catch(e) {
+    	         
+    	         $('#myCanvasContainer').hide();
+    	        }
+    	       });
+   
+    	      
+    	  function likePost(postPath,obj){
+          var data='postPath='+postPath;
+          $.ajax({
+             type: 'POST',
+             url: '<%=request.getContextPath()%>/servlet/blogger/view.likeBlog',                 
+             data: data,
+             success: function(data){
+          
+            
+           //$(obj).hasClass("icon like")?$(obj).html("<a href='javascript:void(0);' class='icon unlike' onclick='likePost("+postPath+","+obj+");'></a>")
+           //:$(obj).html("<a href='javascript:void(0);' class='icon like' onclick='likePost("+postPath+","+obj+");'></a>");
+              
+           
+               window.location.reload();  
+             }    
+         });            
+    }
+     function followingBlog(blogId,param,obj){
+        var id='blogId='+blogId+'&param='+param;
+        $.ajax({
+             type: 'POST',
+             url: '<%=request.getContextPath()%>/servlet/blogger/view.followBlog', 
+             data: id,
+             dataType: 'html',
+             success: function(data){
+              
+                window.location.reload();
+             }
+         });
+       }
+       
+       
+      setInterval("callRandomBlog()",10000);
+       
+       
+    function callRandomBlog()
+    {
+    
+     $.ajax({
+             type: 'POST',
+             url: '<%=request.getContextPath()%>/servlet/blogger/view.randomBlog', 
+           
+             dataType: 'json',
+             success: function(data){
+             if(data.length>0)
+             {
+              var random = Math.floor(Math.random() * data.length);
+                $(".new").html(data[random].posts);
+            }
+	             }
+	         });
+    }
+    var cssValue;
+    var themeImage;
+    
+    function changeStyle(value){
+       cssValue=value;
+    	$("head link#themeId").attr('href',value);
+       }
+       
+      function changeImage(value)
+    	 {
+    	 $("#files").val("");
+    	 themeImage=value;
+    	 document.body.background = value; 
+    	 }
+   
+ function saveTheme(themeCss,imageUpload)
+ {
+ if(cssValue!=null || themeImage!=null || $("#files").val()!="")
+ {
+		var image;
+		var select;
+		
+		if(cssValue!=null)
+		{
+		 var cssSelect=cssValue.split("/");
+		 select=cssSelect[5];
+		 }
+		 
+		 else
+		 {
+		 select=themeCss;
+		 }
+		 
+		 if(themeImage!=null)
+		 {
+		var imageSelect=themeImage.split("/");
+		image=imageSelect[5];
+		
+		}
+		
+		else
+		{
+		image=imageUpload;
+		}
+	
+         var data, xhr;
+        data = new FormData();
+        if($("#files").val()!="")
+        {
+         data.append( "files",$("#files")[0].files[0]);
+         }
+          data.append( "blogId",$("#blogId").val());
+           data.append( "cssSelect",select);
+           data.append( "imageSelect",image);
+          xhr = new XMLHttpRequest();
+        xhr.open( 'POST', '<%=request.getContextPath()%>/servlet/blogger/view.changeTheme', true );
+        xhr.onreadystatechange = function ( response ) {  
+            if (xhr.readyState == 4 && xhr.status == 200) {                
+                //window.location.reload();
+                $('.theme-bar').animate({
+  				width : 'toggle'
+  			}, 350);
+              
+                
+            }
+        };
+        xhr.send( data );
+ }
+ else
+ {
+ alert("Please choose Theme or Image");
+ }
+ }
+ 
+    </script>
+   <script>
+    $(window).load(function(){
+ 
+      $("#sticker").sticky({ topSpacing: 0, center:true, className:"hey" });
+    });
+  </script>   
+ </head>
+ <% var userBloggerNode=currentNode.session.getNode("/content/blogger/user/"+request.getSession(true).getAttribute("bloggerId").toString());
+ 
+ var userBlogIdNode=request.getParameter("param");
+ %>
+ 
+ 
+ 
+ <%if(currentNode.hasNode("themeImage")){%>
+ <body  background="<%=request.getContextPath()%><%=currentNode.getNode("themeImage")%>" style="height:100%;background-attachment:fixed;background-position: 50% 0;">
+ 
+ <% } else if(currentNode.hasProperty("themeImage")){%>
+   <body  background="<%=request.getContextPath()%>/apps/blogger/theme/<%=currentNode.getProperty("themeImage")%>" style="height:100%;background-attachment:fixed;background-position: 50% 0;">
+ <%}else{%>
+  <body  background="<%=request.getContextPath()%>/apps/blogger/theme/page-bg.jpg" style="height:100%;background-attachment:fixed;background-position: 50% 0;">
+  <%}%>
+<input type="hidden" name="blogId" id="blogId" value="<%=request.getParameter("param")%>">
+
+		
+		<div id="bg-mask"></div>
+  
+		<div class="custmize-btn">
+	
+		<div class="home-btn">
+		<ul>
+		<li><a href="<%=request.getContextPath()%>/servlet/blogger/view.home" class="icon home-plus"><span>Home</span></a></li>
+		<%if((userBlogIdNode.equals(request.getSession(true).getAttribute("blogId").toString())) || (userBloggerNode.hasNode("blogId") && userBloggerNode.getNode("blogId").hasNode(userBlogIdNode))){%>
+		<li><a href="#" class="icon custmize"><span>Custmize</span></a></li>
+		<%}%>
+		</ul>
+		</div>
+		</div>
+		
+		<div class="theme-bar" style="display:none;">
+		<div class="theme-content">
+		<div class="button-box">
+		<input type="button"  value="Save" onclick="saveTheme('<%=currentNode.themeCss?currentNode.themeCss:""%>','<%=currentNode.themeImage?currentNode.themeImage:""%>');" />
+		<input type="button"  value="cancel" class="cancel-btn" />
+		</div>
+		<div class="theme-wrap">
+		<h1>All Themes</h1>
+		<div class="theme-thumnail content csstheme">
+		<ul>
+		<li><a href="#" onclick="changeStyle('<%=request.getContextPath()%>/apps/blogger/css/blogView1.css')"><img src="<%=request.getContextPath()%>/apps/blogger/images/theme-thumb01.png" align="" alt="" /><span>Morning Theme</span></a></li>
+		<li><a href="#" onclick="changeStyle('<%=request.getContextPath()%>/apps/blogger/css/blogView2.css')"><img src="<%=request.getContextPath()%>/apps/blogger/images/theme-thumb02.png" align="" alt="" /><span>Sun Set Theme</span></a></li>
+		<li><a href="#" onclick="changeStyle('<%=request.getContextPath()%>/apps/blogger/css/blogView3.css')"><img src="<%=request.getContextPath()%>/apps/blogger/images/theme-thumb03.png" align="" alt="" /><span>Sun Arise Theme</span></a></li>
+		</ul>
+		</div>
+		</div>
+		<div class="theme-wrap">
+		<h1>Change Backgrounds</h1>
+		<div class="theme-thumnail bg-theme-thumbnail content bgTheme ">
+		<ul>
+		<li><a href="#"><img src="<%=request.getContextPath()%>/apps/blogger/theme/bg01.jpg" onclick="changeImage('<%=request.getContextPath()%>/apps/blogger/theme/bg01.jpg')" align="" alt="" /><span>Bg Name</span></a></li>
+		<li><a href="#"><img src="<%=request.getContextPath()%>/apps/blogger/theme/bg02.jpg" onclick="changeImage('<%=request.getContextPath()%>/apps/blogger/theme/bg02.jpg')" align="" alt="" /><span>Bg Name</span></a></li>
+		<li><a href="#"><img src="<%=request.getContextPath()%>/apps/blogger/theme/bg03.jpg" onclick="changeImage('<%=request.getContextPath()%>/apps/blogger/theme/bg03.jpg')" align="" alt="" /><span>Bg Name</span></a></li>
+		<li><a href="#"><img src="<%=request.getContextPath()%>/apps/blogger/theme/bg04.jpg" onclick="changeImage('<%=request.getContextPath()%>/apps/blogger/theme/bg04.jpg')" align="" alt="" /><span>Bg Name</span></a></li>
+		<li><a href="#"><img src="<%=request.getContextPath()%>/apps/blogger/theme/bg05.jpg" onclick="changeImage('<%=request.getContextPath()%>/apps/blogger/theme/bg05.jpg')" align="" alt="" /><span>Bg Name</span></a></li>
+		<li><a href="#"><img src="<%=request.getContextPath()%>/apps/blogger/theme/bg06.jpg" onclick="changeImage('<%=request.getContextPath()%>/apps/blogger/theme/bg06.jpg')" align="" alt="" /><span>Bg Name</span></a></li>
+		<li><a href="#"><img src="<%=request.getContextPath()%>/apps/blogger/theme/bg07.jpg" onclick="changeImage('<%=request.getContextPath()%>/apps/blogger/theme/bg07.jpg')" align="" alt="" /><span>Bg Name</span></a></li>
+		<li><a href="#"><img src="<%=request.getContextPath()%>/apps/blogger/theme/bg08.jpg" onclick="changeImage('<%=request.getContextPath()%>/apps/blogger/theme/bg08.jpg')" align="" alt="" /><span>Bg Name</span></a></li>
+		<li><a href="#"><img src="<%=request.getContextPath()%>/apps/blogger/theme/bg09.jpg" onclick="changeImage('<%=request.getContextPath()%>/apps/blogger/theme/bg09.jpg')" align="" alt="" /><span>Bg Name</span></a></li>
+		<li><a href="#"><img src="<%=request.getContextPath()%>/apps/blogger/theme/bg010.jpg" onclick="changeImage('<%=request.getContextPath()%>/apps/blogger/theme/bg010.jpg')" align="" alt="" /><span>Bg Name</span></a></li>
+		<li><a href="#"><img src="<%=request.getContextPath()%>/apps/blogger/theme/bg011.jpg" onclick="changeImage('<%=request.getContextPath()%>/apps/blogger/theme/bg011.jpg')" align="" alt="" /><span>Bg Name</span></a></li>
+		<li><a href="#"><img src="<%=request.getContextPath()%>/apps/blogger/theme/bg012.jpg" onclick="changeImage('<%=request.getContextPath()%>/apps/blogger/theme/bg012.jpg')" align="" alt="" /><span>Bg Name</span></a></li>
+		</ul>
+		</div>
+		<span class="file-browse"><input type="file" name="files" id="files" onchange="readURL(this)"/><img id="imageId" src="<%=request.getContextPath()%>/apps/blogger/theme/bg03.jpg" /></span>
+		</div>
+		</div>
+		</div>
+
+
+		<div class="main-container" style="min-height:100%">
+		<div class="header-container"></div>
+		<div class="body-container">
+		<h2><%=request.getParameter("param")%></h2>
+		<div class="section-right">
+		<div id="sticker">
+		<!---------------------------user div---------------------------------------------------->
+		<div class="user-info">
+			<% if(currentNodeProvided ){
+			        if(currentNode.hasNode("avatar"))
+			        { %>
+			<a href="#"><img src="<%=request.getContextPath()%><%=currentNode.getNode("avatar")%>"  />
+			<% } else { %>
+			<a href="#"><img src="<%=request.getContextPath()%>/apps/blogger/images/picture_user.jpg" />
+			<% }} %>
+			<h3><%=request.getParameter("param")%></h3>
+			</a>
+		<% 
+		if(!(userBloggerNode.hasNode("followings") && userBloggerNode.getNode("followings").hasNode(request.getParameter("param"))) && !(request.getParameter("param").equals(request.getSession(true).getAttribute("blogId").toString())))
+		{ %>
+		<a href="#" onclick="followingBlog('<%=request.getParameter("param")%>','follow',this)">+ Follow </a>
+		<%}  else if(!(request.getParameter("param").equals(request.getSession(true).getAttribute("blogId").toString()))){ %>
+		<a href="#" onclick="followingBlog('<%=request.getParameter("param")%>','unfollow',this)">+ Unfollow </a>
+		<% } %>
+		</div>
+		
+		<!---------------------------followers div---------------------------------------------------->
+		
+		
+		<% if(currentNodeProvided ){
+        if(currentNode.hasNode("followers"))
+        {
+        var follower=currentNode.getNode("followers");
+        if(follower.hasNodes())
+        { %> 
+         <div class="sub-section">
+    <h3>Followers</h3>
+      <div class="follower">
+       <% var followerNodes = currentNode.getNode("followers").getNodes();
+                 for(var i=0;i<followerNodes.length && i<6;i++) {
+                 var followerNode = followerNodes[i]; %>	
+			
+   
+      <% if(followerNode.hasNode("avatar")) {%>
+                 
+        <a href="<%=request.getContextPath()%>/servlet/blogger/view.blogView?param=<%=followerNode.getName()%>"><img src="<%=request.getContextPath()%><%=followerNode.getNode("avatar")%>"  width="70" height="70" title="<%=followerNode.getName()%>"/></a>
+       
+     <%}else{%>
+     <a href="<%=request.getContextPath()%>/servlet/blogger/view.blogView?param=<%=followerNode.getName()%>"><img  src="<%=request.getContextPath()%>/apps/blogger/images/picture_user.jpg"  width="70" height="70" title="<%=followerNode.getName()%>" /></a>
+     <%}%>    
+    
+
+    
+     <%}%>
+      <a href="#">&nbsp;View All</a> 
+     </div></div><%}}}%>
+        <!---------------------------tagcloud div---------------------------------------------------->  
+		<div class="sub-section new">
+		 
+		</div>
+		<%if(request.getAttribute("tagList").size()>0){%>
+		<div class="sub-section">
+		<h3>Tag Cloud</h3>
+		<div class="featured-blog">
+		<div id="myCanvasContainer">
+      <canvas id="myCanvas">
+        <p>Anything in here will be replaced on browsers that support the canvas element</p>
+      </canvas>
+    </div>
+    <div id="tags" style="display:none;">
+      <ul>
+      <%
+    var tagNodes=request.getAttribute("tagList");
+    
+    for(var i=0;i<tagNodes.size();i++)
+    {
+    var tagNode=tagNodes.get(i);
+   
+    %>
+        <li><a href="<%=request.getContextPath()%>/servlet/blogger/view.tagPosts?tagKey=<%=tagNode%>"><%=tagNode%></a></li>
+       <%}%>
+      </ul>
+    </div>
+</div>
+</div>
+<%}%>
+</div>
+</div>
+<!---------------------------post div start---------------------------------------------------->
+<div class="section-left">
+    <ol class="post-list">
+    <% if(currentNodeProvided ){
+                    if(currentNode.hasNode("Post"))
+                    {
+                    if(currentNode.getNode("Post").hasNodes())
+                    {
+             var nodes = currentNode.getNode("Post").getNodes();
+             for(var i=nodes.length-1;i>=0;i--) {
+             var blogNode = nodes[i];
+             var postType=blogNode.getProperty("postType");
+              var accessType=blogNode.getProperty("accessType");
+              if(accessType=='public')
+              {
+             var avatarNode;
+             if(blogNode.getParent().getParent().hasNode("avatar"))
+             {
+             avatarNode=blogNode.getParent().getParent().getNode("avatar");
+             }
+             else
+             {   avatarNode="/apps/blogger/images/picture_user.jpg";
+             }
+             %>
+        <li>
+            <div class="post">
+                <div class="post-wrapper">
+                    <div class="post-header"> <%if(postType=='text'){%><span class="header-info"><%=blogNode.getProperty("title")%></span><%} else if(postType=='quote') {%>
+                        <span class="header-info"><span class="quote-mark">&ldquo;</span><span class="quote-title"><%=blogNode.getProperty("title")%></span><span class="quote-mark">&rdquo;</span></span>
+                    <%}%>
+                    
+                    
+                    <div class="like-icon-count"><span class="like-count"><img src="<%=request.getContextPath()%>/apps/blogger/images/icon_like_count.png" alt="" /></span> <div class="count-cont"><span class="counting-box">
+                   
+                   <% if(blogNode.hasNode("Like"))
+                    {
+                    var likedNode=blogNode.getNode("Like");
+                    if(likedNode.hasNodes())
+                    { %>
+                    
+                    <%=likedNode.getNodes().length%>
+                    <% } else { %>
+                    0
+                   <% }} else { %> 0 <% } %>
+                    
+                    </span></div></div> <span class="post-date"><strong>
+                     <% d = new Packages.java.text.SimpleDateFormat("dd");%>
+                    <%=d.format(blogNode.getProperty("postTimeStamp").getDate().getTime())%></strong>
+                    <% 	df = new Packages.java.text.SimpleDateFormat("MMM");%>
+                   <i> <%=df.format(blogNode.getProperty("postTimeStamp").getDate().getTime())%></i>
+                    </span></div>
+                    <div class="post-content">
+                      <div class="post-content">
+                      
+                        
+							      
+               
+
+                                   
+                                    <%if(postType=='video'){%>
+
+                                    <input type="hidden" id="video" value="<%=blogNode.getProperty("videoIframe")%>" /> 
+                                       
+                                   
+                                            
+                                                <%if((blogNode.videoLinkFlag+"")=='false'){%>
+                                                <div class="video-post">
+									              
+									              <div class="video-player">
+									              <img src="<%=request.getContextPath()%>/apps/blogger/images/caimg.jpg" alt="" />
+									              <div class="play-icon"></div>
+                                                
+                                                    <source
+                                                        src="<%=request.getContextPath()+blogNode.getNode("Video").getNodes()[0].getPath()%>"
+                                                        type="video/webm">
+                                                        
+                                                       </div>
+              
+                                                     </div>
+                                                       
+                                                <%}else{%>
+                                               <div class="video-post">
+              
+							          <div class="video-player">
+							          <%=blogNode.videoThumbnail%>
+							           <div class="play-icon"  onclick="showVideo(this);"></div>
+							           <div></div>
+                                                  
+							              </div>
+							              
+							              </div>
+                                		 <%}%>
+                          
+                                    <%}else if(postType=='link'){%>
+                                    
+                                    <div class="link-post">
+                  
+                           			<div class="info">
+				                	<h4><span><a href="#"><%=blogNode.getProperty("title")%></a></span></h4>
+				                	
+				             	 	</div>
+				            		</div>
+                                  
+                                   
+                                   <%}else if(postType=='audio'){
+                                        
+                                         var audioLinkFlag=blogNode.getProperty("audioLinkFlag").getString();
+                                        %>
+                                      <div class="audio-post">
+                            <div class="player">
+		                      <img src="<%=request.getContextPath()%>/apps/blogger/images/icon-audiobg-.png" alt="" />
+		                
+		                      <audio controls>
+                
+                
+                                        <% if(audioLinkFlag=='true'){ %>
+                                         <source src="<%=blogNode.audioLink?blogNode.audioLink:""%>" type="audio/mpeg">
+                                       
+                                      
+                                       <%} else {
+                                       var audioNode=blogNode.getNode("Audio").getNodes();
+                                       
+                                       %>
+                                    <source src="<%=request.getContextPath()%><%=audioNode[0]%>" type="audio/mpeg">
+                                   
+                                       
+                                       <%}%> 
+                                   
+                
+                          </audio> 
+				          </div>
+				          <div class="info">
+				          <h4><a href="#"><%=blogNode.audioAlbum?blogNode.audioAlbum:""%></a></h4>
+				          <h5><a href="#">Lyrics: <strong><%=blogNode.audioTrack?blogNode.audioTrack:""%></strong></a></h5>
+				          <h5><a href="#">Artist: <strong>Name of artist</strong></a></h5>
+				          </div>
+				          </div>
+                                      
+                     
+                                   
+                                    <% } else if(postType=='image'){%>
+                                       <div class="image-post">
+                                            <% 
+                                            if(blogNode.hasNode("Image"))
+                                            {
+                                            var Image=blogNode.getNode("Image");
+                                            if(Image.hasNodes())
+                                            {
+                                            var imageNode=Image.getNodes();
+                                             for(var k=0;k<imageNode.length;k++) {
+                                              var image= imageNode[k];
+                                              %><a 
+                                                href="javascript:void(0);" onclick="imageFull(this)"> <img
+                                                src="<%=request.getContextPath()%><%=image%>/x320" />
+                                            </a>
+                                            <%}%>
+                                            
+                                        </div>
+                                       
+                                        <%}}}%>
+              <%if(postType=='text' || postType=='quote'){%>
+                 <p class="spacing-left"><%=blogNode.getProperty("description")%></p>
+                <%} else {%>
+                  <p><%=blogNode.getProperty("description")%></p>
+                <%}%>
+              </div>
+                      
+                      <div class="post-tags">
+                      
+                      <%if(blogNode.hasNode("Tags") && blogNode.getNode("Tags").hasProperty("tags")){
+                        for(var p=0;p<blogNode.getNode("Tags").getProperty("tags").getValues().length;p++){%>
+                            # <a href="javascript:void(0);"><%=blogNode.getNode("Tags").getProperty("tags").getValues()[p].getString()%></a>     
+                        <%}
+                    }%>
+                      
+                      </div>
+                    </div>
+                    <div class="post-footer">
+                    
+                      
+                                     <% d=new Packages.java.text.SimpleDateFormat("yyyy-MM-dd hh:mm:ss"); 
+                          var postDate= d.format(blogNode.getProperty("postTimeStamp").getDate().getTime());
+                           %>
+                          
+                           
+                              <div class="note-count"><span class="note-text"><%=getTime(postDate)%></span></div>
+                    
+                    
+                    <div class="post-action"><a href="<%=request.getContextPath()%>/servlet/blogger/view.rePosts?reblogPath=<%=blogNode.getPath()%>" class="icon reply" ></a>
+                    
+                     <% if(blogNode.hasNode("Like")) { 
+                                var likeNode=blogNode.getNode("Like");
+                                
+                                if(likeNode.hasNode(request.getSession(true).getAttribute("blogId").toString())) { %>       
+                          <a href="javascript:void(0);" class="icon like" onclick="likePost('<%=blogNode.getPath()%>',this);"></a>
+                          <% } else { %>
+                            <a href="javascript:void(0);" class="icon unlike" onclick="likePost('<%=blogNode.getPath()%>',this);"></a>
+                                      <% }} else {%>
+                                        <a href="javascript:void(0);" class="icon unlike" onclick="likePost('<%=blogNode.getPath()%>',this);"></a>
+                                        <% } %> 
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </li>
+      <%}}}} else {%>
+      
+     <li>
+            <div class="post">
+            
+                <div class="post-wrapper">
+                <div class="no-post-cont"><img src="<%=request.getContextPath()%>/apps/blogger/images/no-post-icon.png" alt="" /><h1>No Post Found</h1></div>
+      </div></div>
+      </li>
+     <%}}%>
+      
+    </ol>
+</div>
+ 
+</div>
+<div style="display:none;" class="full-image-popup">
+             <a href="javascript:void(0);"><div class="close-image"></div></a>
+             <a href="javascript:void(0);" onclick="nextImage()" ><div class="next"></div></a>
+             <a href="javascript:void(0);" onclick="previousImage()"><div class="prev"></div></a>
+             <img alt="" id="fullImageViewId" src="">
+        </div>
+<div class="footer-container"></div>
+</div>
+
+
+
+
+<%
+function getTime(postDate){
+	var timeDiff;
+	df = new Packages.java.text.SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+	date = Packages.java.util.Calendar.getInstance();
+	date1 = df.parse(df.format(date.getTime()));
+	date2 = df.parse(postDate);
+	diff = Packages.java.lang.Math.floor(date1.getTime() - date2.getTime());
+	if (diff > 0) {
+		diffSeconds = Packages.java.lang.Math.floor(diff / 1000 % 60);
+		diffMinutes = Packages.java.lang.Math.floor(diff / (60 * 1000) % 60);
+		diffHours = Packages.java.lang.Math.floor(diff / (60 * 60 * 1000) % 24);
+		diffDays = Packages.java.lang.Math.floor(diff / (24 * 60 * 60 * 1000));
+		diffMonths = Packages.java.lang.Math.floor(diffDays / 30);
+		if(diffMonths>0)
+			return "Posted "+ diffMonths + " months ago";
+		else if(diffDays>0)
+			return "Posted "+ diffDays + " days ago";
+		else if(diffHours>0)
+			 return "Posted "+ diffHours + " hr ago";
+		 else if(diffMinutes>0)
+			 return "Posted "+ diffMinutes + " min ago";
+		 else
+			 return "Posted "+ diffSeconds + " sec ago";
+		} else {
+			return "";
+		}	
+}
+%>
+
+
+
+
+</body>
+</html>

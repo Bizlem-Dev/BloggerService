@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>audio.js</title>
+    <script type="text/javascript" src="<%=request.getContextPath()%>/apps/blogger/js/jquery.js"></script>
+    <script type="text/javascript" src="<%=request.getContextPath()%>/apps/blogger/js/audio.min.js"></script>
+    <script>
+      
+    </script>
+    
+    
+    
+    <link href="<%=request.getContextPath()%>/apps/blogger/css/audio-player.css" rel="stylesheet" type="text/css">
+  </head>
+  <body>
+   
+<div class="audio-player-wrap">
+<div class="audip-player-content clearfix">
+<div class="album-image"><img src="images/icon-audio.png" alt=""/></div>
+<div class="album-text">
+<span>Album name</span>
+<span><i>Lyrics by name</i></span>
+
+</div>
+
+
+</div>
+
+<div class="ecolizer-wrap"><img src="images1/equalizer.gif" alt=""/></div>
+    <audio id="audioId" src="" preload="auto"></audio>
+    
+<input type="text" id="textId"   />
+<a onclick="pop();">Click</a>    
+</div>
+  <script>
+    function pop(){
+        $("#audioId").attr("src",$("#textId").val());
+        audiojs.events.ready(function() {
+            audiojs.createAll();
+          });
+    }
+  </script> 
+  </body>
+</html>

@@ -1,0 +1,12 @@
+@font-face {
+  font-family: 'Coustard';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Coustard'), url(7Z1TmjHUqIGEzERrLfAhXPesZW2xOQ-xsNqO47m55DA.woff) format('woff');
+}
+@font-face {
+  font-family: 'IM Fell Great Primer SC';
+  font-style: normal;
+  font-weight: 400;
+  src: local('IM FELL Great Primer SC'), local('IM_FELL_Great_Primer_SC'), url(A313vRj97hMMGFjt6rgSJgLbk6iVZLS-EhwS4yjOduQ.woff) format('woff');
+}

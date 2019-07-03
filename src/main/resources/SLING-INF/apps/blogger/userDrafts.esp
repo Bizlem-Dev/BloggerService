@@ -1,0 +1,247 @@
+<%
+var currentNodeProvided = ((typeof currentNode != "undefined")); 
+%>
+<!-------------------------------------post start from here----------------------------------------------------->
+<% if(currentNodeProvided ){
+        if(currentNode.hasNode("Draft"))
+        {
+             var nodes = currentNode.getNode("Draft").getNodes();
+             for(var i=nodes.length-1;i>=0;i--) {
+             var blogNode = nodes[i];
+             var postType=blogNode.getProperty("postType");
+             %>
+<li>
+    <div class="post">
+        <div class="post-avtar">
+            <a href="<%=request.getContextPath()%>/servlet/blogger/view.blogView?param=<%=blogNode.getParent().getParent().getName()%>" class="avtar-pic">
+               <%if(blogNode.getParent().getParent().hasNode("avatar")){%>
+                     <img src="<%=request.getContextPath()+blogNode.getParent().getParent().getNode("avatar")%>" />
+               <%}else{%>
+                    <img src="<%=request.getContextPath()%>/apps/blogger/images/picture_user.jpg" />
+               <%}%>
+            </a>   
+        </div>
+        <div class="post-connector-arrow"></div>
+        <div class="post-wrapper">
+            <div class="post-header">
+                <span class="header-info">
+                    <a href="<%=request.getContextPath()%>/servlet/blogger/view.blogView?param=<%=blogNode.getParent().getParent().getName()%>" >
+                        <%=blogNode.getParent().getParent().getName()%>
+                    </a>
+                    
+                </span>
+            </div>
+            <div class="post-content">
+                <%if(postType=='text'){%>
+
+                <div class="quotes">
+                    <div class="title">
+                        <span class="quote-text"> <%=blogNode.getProperty("title")%></span>
+                    </div>
+                    <div class="description"><%=blogNode.getProperty("description")%></div>
+                </div>
+                <%}else if(postType=='quote'){%>
+
+                <div class="quotes">
+                    <div class="title">
+                        <span class="quote-mark">&ldquo;</span><span class="quote-text"><%=blogNode.getProperty("title")%></span><span
+                            class="quote-mark">&rdquo;</span>
+                    </div>
+                    <div class="description"><%=blogNode.getProperty("description")%></div>
+
+                </div>
+
+
+                <%}else if(postType=='video'){%>
+
+                <input type="hidden" id="video"
+                    value="<%=blogNode.getProperty("videoIframe")%>" /> <a
+                    href="javascript:void(0);">
+                    <div class="video-upload-box">
+
+                        <%if((blogNode.videoLinkFlag+"")=='false'){%>
+                        <video width="575" height="300" controls>
+                            <source
+                                src="<%=request.getContextPath()+blogNode+"/"+blogNode.getNodes()[0].getName()%>"
+                                type="video/webm">
+                                                                Your browser does not support the video tag.
+                                                 
+                        </video>
+                        <%}else{%>
+                        <span style="margin: 8.5em 20em;" id="button"
+                            onclick="showVideo(this);"></span>
+                        <div id="image">
+                            <%=blogNode.videoThumbnail%>
+                        </div>
+                        <%}%>
+
+                        <div></div>
+                    </div>
+                </a>
+
+                <p>
+                <div class="quotes">
+                    <div class="description"><%=blogNode.description%></div>
+                    </p>
+                </div>
+
+
+
+                <%}else if(postType=='link'){%>
+
+                <a href="javascript:void(0);">
+                    <div class="link-box">
+                        <span><%=blogNode.getProperty("title")%><img
+                            src="<%=request.getContextPath()%>/apps/blogger/images/link-arrow.png"
+                            alt="" /></span> <span><%=blogNode.getProperty("link")%></span>
+
+                    </div>
+                </a>
+                <p>
+                <div class="quotes">
+                    <div class="description"><%=blogNode.getProperty("description")%></div>
+                    </p>
+                </div>
+                 <%}else if(postType=='audio'){
+                                        
+                                         var audioLinkFlag=blogNode.getProperty("audioLinkFlag").getString();
+                                        %>
+                                      
+                                         <div class="audio-player-wrap">
+										<div class="audip-player-content clearfix">
+										<div class="album-image">
+										<% if(blogNode.coverPage!=""){%>
+										<img src="<%=blogNode.coverPage%>" alt=""/>
+										<% } %>
+										</div>
+										<div class="album-text">
+										<span><%=blogNode.audioAlbum?blogNode.audioAlbum:""%></span>
+										<span><i><%=blogNode.audioTrack?blogNode.audioTrack:""%></i></span>
+										<span><i>Artist name</i></span>
+
+										</div>
+										
+										</div>
+										<!--<div class="ecolizer-wrap"><img src="<%=request.getContextPath()%>/apps/blogger/images/equalizer.gif" alt=""/></div>-->
+                                        <% 
+                                        
+                                        if(audioLinkFlag=='true'){
+                                     
+                                        %>
+                                         <audio src="<%=blogNode.audioLink?blogNode.audioLink:""%>" preload="auto"></audio>
+                                      
+                                       <%} else {
+                                       var audioNode=blogNode.getNode("Audio").getNodes();
+                                       
+                                       %>
+                                   
+                                      <audio src="<%=request.getContextPath()%><%=audioNode[0]%>" preload="auto"></audio>
+                                       
+                                       <%}%> 
+                                   
+                    
+                                        
+                                       <div class="album-description">
+                                          <%=blogNode.getProperty("description")%>
+                                            
+                                      </div>
+                               
+                                        </div>
+                 <%}else if(postType=='image'){%>
+                                      <div class="image-post">
+                                            <% 
+                                            if(blogNode.hasNode("Image"))
+                                            {
+                                            var Image=blogNode.getNode("Image");
+                                            if(Image.hasNodes())
+                                            {
+                                            var imageNode=Image.getNodes();
+                                             for(var k=0;k<imageNode.length;k++) {
+                                              var image= imageNode[k];
+                                              %><a onclick="imageFull(this)"
+                                                href="javascript:void(0);"> <img
+                                                src="<%=request.getContextPath()%><%=image%>/x320" />
+                                            </a>
+                                            <%}%>
+                                        </div>
+                                       
+                                        <%}}}%>
+                <div class="post-tags">
+                    <%if(blogNode.hasNode("Tags") && blogNode.getNode("Tags").hasProperty("tags")){
+                        for(var p=0;p<blogNode.getNode("Tags").getProperty("tags").getValues().length;p++){%>
+                            # <a href="javascript:void(0);"><%=blogNode.getNode("Tags").getProperty("tags").getValues()[p].getString()%></a>     
+                        <%}
+                    }%>
+                </div>
+            </div>
+             <div class="post-footer">
+             
+                                     <% d=new Packages.java.text.SimpleDateFormat("yyyy-MM-dd hh:mm:ss"); 
+                          var postDate= d.format(blogNode.getProperty("postTimeStamp").getDate().getTime());
+                           %>
+                          
+                           
+                              <div class="note-count"><span class="note-text"><%=getTime(postDate)%></span></div>
+                  <div class="post-action">  
+                   <%if(blogNode.getParent().getParent().getProperty("bloggerId").getString().equals(request.getSession(true).getAttribute("bloggerId").toString())){%>             
+                    <div>
+                        <ul>
+                            <li style="float: none; list-style: none outside none; display: inline;">
+                                <a class="icon edit" href="javascript:void(0)" 
+                                   onclick="editPost('<%=blogNode.getName()%>','Draft','<%=blogNode.getParent().getParent().getName()%>','<%=blogNode.getProperty("postType")%>',this);"></a>
+                            </li>
+                            <li style="float: none; list-style: none outside none; display: inline;">
+                                <a class="icon delete" href="javascript:void(0)" 
+                                   onclick="deletePost('<%=blogNode.getPath()%>',this);"></a>
+                            </li>
+                        </ul>
+                   </div>
+                  <%}%>
+                </div>
+            </div>
+        </div>
+        <div class="post-wrapper view" style="display:none"></div>
+    </div>
+</li>
+<%}}}%>
+<!-----------------------------post end from here-------------------------------------------------->
+
+
+
+
+<%
+function getTime(postDate){
+	var timeDiff;
+	df = new Packages.java.text.SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+	date = Packages.java.util.Calendar.getInstance();
+	date1 = df.parse(df.format(date.getTime()));
+	date2 = df.parse(postDate);
+	diff = Packages.java.lang.Math.floor(date1.getTime() - date2.getTime());
+	if (diff > 0) {
+		diffSeconds = Packages.java.lang.Math.floor(diff / 1000 % 60);
+		diffMinutes = Packages.java.lang.Math.floor(diff / (60 * 1000) % 60);
+		diffHours = Packages.java.lang.Math.floor(diff / (60 * 60 * 1000) % 24);
+		diffDays = Packages.java.lang.Math.floor(diff / (24 * 60 * 60 * 1000));
+		diffMonths = Packages.java.lang.Math.floor(diffDays / 30);
+		if(diffMonths>0)
+			return "Posted "+ diffMonths + " months ago";
+		else if(diffDays>0)
+			return "Posted "+ diffDays + " days ago";
+		else if(diffHours>0)
+			 return "Posted "+ diffHours + " hr ago";
+		 else if(diffMinutes>0)
+			 return "Posted "+ diffMinutes + " min ago";
+		 else
+			 return "Posted "+ diffSeconds + " sec ago";
+		} else {
+			return "";
+		}	
+}
+%>
+
+
+
+
+
+
+
